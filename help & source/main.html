@@ -1,0 +1,630 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+<html xmlns:mwsh="http://www.mathworks.com/namespace/mcode/v1/syntaxhighlight.dtd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      -->
+      <title>main</title>
+      <meta name="generator" content="MATLAB 7.6">
+      <meta name="date" content="2008-05-14">
+      <meta name="m-file" content="main"><style>
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head>
+   <body>
+      <div class="content">
+         <h2>Contents</h2>
+         <div>
+            <ul>
+               <li><a href="#2">-------khoi tao giao dien-------</a></li>
+               <li><a href="#4">---khung du lieu</a></li>
+               <li><a href="#5">---khung ket qua</a></li>
+               <li><a href="#9">---Lay du lieu vao</a></li>
+               <li><a href="#10">---Nhap n</a></li>
+               <li><a href="#11">---Nhap m</a></li>
+               <li><a href="#12">Nhap k</a></li>
+               <li><a href="#13">---tao bang du lieu S (dat)</a></li>
+               <li><a href="#15">---Nhap S (dat)</a></li>
+            </ul>
+         </div><pre class="codeinput"><span class="keyword">function</span> main(varargin)
+<span class="keyword">global</span> n m k dat
+<span class="keyword">if</span> (nargin==0)
+</pre><h2>-------khoi tao giao dien-------<a name="2"></a></h2><pre class="codeinput">    H = findobj(0,<span class="string">'Tag'</span>,<span class="string">'giaodien'</span>);
+    <span class="keyword">if</span> ~isempty(H)
+        figure(H);
+    <span class="keyword">else</span>
+</pre><pre class="codeinput">        H = figure(<span class="string">'units'</span>,<span class="string">'pixel'</span>,<span class="string">'pos'</span>,[2 2 798 598],<span class="string">'menu'</span>,<span class="string">'none'</span>, <span class="keyword">...</span>
+            <span class="string">'tag'</span>,<span class="string">'giaodien'</span>,<span class="keyword">...</span>
+            <span class="string">'Color'</span>,get(0,<span class="string">'DefaultUIControlBackgroundColor'</span>), <span class="keyword">...</span>
+            <span class="string">'DefaultUIControlUnit'</span>,<span class="string">'norm'</span>);
+        figure(H);
+
+        set(gca,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+        f=uimenu(<span class="string">'Label'</span>,<span class="string">'File'</span>);
+        uimenu(f,<span class="string">'Label'</span>,<span class="string">'Open'</span>,<span class="string">'Callback'</span>,<span class="string">'main(''open'')'</span>,<span class="string">'Accelerator'</span>,<span class="string">'O'</span>);
+        uimenu(f,<span class="string">'Label'</span>,<span class="string">'Save'</span>,<span class="string">'Callback'</span>,<span class="string">'main(''save'')'</span>,<span class="string">'Accelerator'</span>,<span class="string">'S'</span>);
+        uimenu(f,<span class="string">'Label'</span>,<span class="string">'Save as...'</span>,<span class="string">'Callback'</span>,<span class="string">'main(''SaveAs'')'</span>);
+        uimenu(f,<span class="string">'Label'</span>,<span class="string">'Quit'</span>,<span class="string">'Callback'</span>,<span class="string">'exit'</span>,<span class="string">'Accelerator'</span>,<span class="string">'Q'</span>);
+
+        g=uimenu(<span class="string">'Label'</span>,<span class="string">'Operate'</span>);
+        uimenu(g,<span class="string">'Label'</span>,<span class="string">'Encode'</span>,<span class="string">'Callback'</span>,<span class="string">'main(''encode'')'</span>,<span class="string">'Accelerator'</span>,<span class="string">'E'</span>);
+        uimenu(g,<span class="string">'Label'</span>,<span class="string">'Decode'</span>,<span class="string">'Callback'</span>,<span class="string">'main(''decode'')'</span>,<span class="string">'Accelerator'</span>,<span class="string">'D'</span>);
+        <span class="comment">%---3 duong vien ngoai</span>
+        uicontrol(<span class="string">'style'</span>,<span class="string">'frame'</span>,<span class="string">'pos'</span>,[0.01 0.30 0.98 0.68]);
+        uicontrol(<span class="string">'style'</span>,<span class="string">'frame'</span>,<span class="string">'pos'</span>,[0.01 0.15 0.98 0.14]);
+        uicontrol(<span class="string">'style'</span>,<span class="string">'frame'</span>,<span class="string">'pos'</span>,[0.01 0.01 0.98 0.14]);
+</pre><h2>---khung du lieu<a name="4"></a></h2><pre class="codeinput">        n=0;
+        m=0;
+        k=0;
+        dat={<span class="string">''</span>};
+
+        main(<span class="string">'update'</span>);
+        uicontrol(<span class="string">'style'</span>,<span class="string">'text'</span>,<span class="string">'string'</span>,<span class="string">'  n     ='</span>,<span class="string">'pos'</span>,[0.04 0.93 0.09 0.04],<span class="keyword">...</span>
+            <span class="string">'tag'</span>,<span class="string">'fn'</span>);
+        uicontrol(<span class="string">'pos'</span>,[.12 .93 .10 .04],<span class="string">'style'</span>,<span class="string">'edit'</span>,<span class="string">'horiz'</span>,<span class="string">'left'</span>, <span class="keyword">...</span>
+            <span class="string">'string'</span>,<span class="string">'0'</span>,<span class="string">'backgroundcolor'</span>,<span class="string">'white'</span>, <span class="keyword">...</span>
+            <span class="string">'tag'</span>,<span class="string">'nin'</span>,<span class="string">'CallBack'</span>,<span class="string">'main(''update'')'</span>);
+
+        uicontrol(<span class="string">'style'</span>,<span class="string">'text'</span>,<span class="string">'string'</span>,<span class="string">'  m    = '</span>,<span class="string">'pos'</span>,[0.24 0.93 0.09 0.04],<span class="keyword">...</span>
+            <span class="string">'tag'</span>,<span class="string">'fm'</span>);
+        uicontrol(<span class="string">'pos'</span>,[.32 .93 .10 .04],<span class="string">'style'</span>,<span class="string">'edit'</span>,<span class="string">'horiz'</span>,<span class="string">'left'</span>, <span class="keyword">...</span>
+            <span class="string">'string'</span>,<span class="string">'0'</span>,<span class="string">'backgroundcolor'</span>,<span class="string">'white'</span>, <span class="keyword">...</span>
+            <span class="string">'tag'</span>,<span class="string">'min'</span>,<span class="string">'CallBack'</span>,<span class="string">'main(''update'')'</span>);
+
+        uicontrol(<span class="string">'style'</span>,<span class="string">'text'</span>,<span class="string">'string'</span>,<span class="string">'  k    = '</span>,<span class="string">'pos'</span>,[0.44 0.93 0.09 0.04],<span class="keyword">...</span>
+            <span class="string">'tag'</span>,<span class="string">'fk'</span>);
+        uicontrol(<span class="string">'pos'</span>,[.52 .93 .10 .04],<span class="string">'style'</span>,<span class="string">'edit'</span>,<span class="string">'horiz'</span>,<span class="string">'left'</span>, <span class="keyword">...</span>
+            <span class="string">'string'</span>,<span class="string">'0'</span>,<span class="string">'backgroundcolor'</span>,<span class="string">'white'</span>, <span class="keyword">...</span>
+            <span class="string">'tag'</span>,<span class="string">'kin'</span>,<span class="string">'CallBack'</span>,<span class="string">'main(''update'')'</span>);
+</pre><h2>---khung ket qua<a name="5"></a></h2><pre class="codeinput">            uicontrol(<span class="string">'style'</span>,<span class="string">'text'</span>,<span class="string">'pos'</span>,[0.02 0.23 0.03 0.03],<span class="string">'string'</span>,<span class="string">'u='</span>);
+            uicontrol(<span class="string">'pos'</span>,[0.02 0.17 0.03 0.03],<span class="string">'string'</span>,<span class="string">'v='</span>,<span class="string">'CallBack'</span>,<span class="string">'main(''encode'')'</span>);
+            uicontrol(<span class="string">'style'</span>,<span class="string">'text'</span>,<span class="string">'pos'</span>,[0.02 0.09 0.03 0.03],<span class="string">'string'</span>,<span class="string">'r='</span>);
+            uicontrol(<span class="string">'pos'</span>,[0.02 0.03 0.03 0.03],<span class="string">'string'</span>,<span class="string">'u='</span>,<span class="string">'CallBack'</span>,<span class="string">'main(''decode'')'</span>);
+
+            uicontrol(<span class="string">'style'</span>,<span class="string">'edit'</span>,<span class="string">'pos'</span>,[0.06 0.23 0.92 0.05],<span class="string">'string'</span>,<span class="string">''</span>, <span class="keyword">...</span>
+                <span class="string">'CallBack'</span>,<span class="string">'main(''encode'')'</span>,<span class="string">'tag'</span>,<span class="string">'uin'</span>,<span class="string">'backgroundcolor'</span>,<span class="string">'white'</span>);
+            uicontrol(<span class="string">'style'</span>,<span class="string">'listbox'</span>,<span class="string">'pos'</span>,[0.06 0.154 0.92 0.07],<span class="string">'string'</span>,<span class="string">''</span>,<span class="keyword">...</span>
+                <span class="string">'tag'</span>,<span class="string">'vout'</span>,<span class="string">'backgroundcolor'</span>,[0.5 0.5 1]);
+            uicontrol(<span class="string">'style'</span>,<span class="string">'edit'</span>,<span class="string">'pos'</span>,[0.06 0.09 0.92 0.05],<span class="string">'string'</span>,<span class="string">''</span>, <span class="keyword">...</span>
+                <span class="string">'CallBack'</span>,<span class="string">'main(''decode'')'</span>,<span class="string">'tag'</span>,<span class="string">'rin'</span>,<span class="string">'backgroundcolor'</span>,<span class="string">'white'</span>);
+            uicontrol(<span class="string">'style'</span>,<span class="string">'listbox'</span>,<span class="string">'pos'</span>,[0.06 0.013 0.92 0.07],<span class="string">'string'</span>,<span class="string">''</span>,<span class="keyword">...</span>
+                <span class="string">'tag'</span>,<span class="string">'uout'</span>,<span class="string">'backgroundcolor'</span>,[1 0.5 0.5]);
+</pre><pre class="codeinput">    <span class="keyword">end</span>
+    <span class="comment">%======= xong phan tao giao dien  ===========%</span>
+</pre><pre class="codeinput"><span class="keyword">else</span>
+    chose=varargin(1);
+    <span class="keyword">switch</span> chose{1}
+        <span class="comment">%======= phan xu li =========================%</span>
+        <span class="comment">%         case 1</span>
+        <span class="comment">%             h= findobj(0,'tag','giaodien');</span>
+        <span class="comment">%             dlvao= findobj(h,'tag','vao');</span>
+        <span class="comment">%             x=get(dlvao,'string');</span>
+        <span class="comment">%             y=myfft(eval(['[' x ']']));</span>
+        <span class="comment">%             dlra = findobj(h,'tag','ra');</span>
+        <span class="comment">%             set(dlra,'string',lamdep(y),'value',1.0);</span>
+        <span class="keyword">case</span> <span class="string">'open'</span>
+            [filename, pathname, filterindex] = uigetfile( <span class="keyword">...</span>
+                {  <span class="string">'*.in*'</span>,<span class="string">'DATA-files (*.in*)'</span>; <span class="keyword">...</span>
+                <span class="string">'*.ou*'</span>,<span class="string">'Result files (*.ou*)'</span>; <span class="keyword">...</span>
+                <span class="string">'*.*'</span>,  <span class="string">'All Files (*.*)'</span>}, <span class="keyword">...</span>
+                <span class="string">'Pick a file'</span>, <span class="keyword">...</span>
+                <span class="string">'MultiSelect'</span>, <span class="string">'off'</span>);
+
+        <span class="keyword">case</span> <span class="string">'save'</span>
+
+        <span class="keyword">case</span> <span class="string">'SaveAs'</span>
+            [filename, pathname, filterindex] = uiputfile( <span class="keyword">...</span>
+                {<span class="string">'*.in*'</span>,<span class="string">'DATA-files (*.in*)'</span>; <span class="keyword">...</span>
+                <span class="string">'*.ou*'</span>,<span class="string">'Result files (*.ou*)'</span>; <span class="keyword">...</span>
+                <span class="string">'*.*'</span>,  <span class="string">'All Files (*.*)'</span>}, <span class="keyword">...</span>
+                <span class="string">'Save as'</span>);
+
+        <span class="keyword">case</span> <span class="string">'encode'</span>
+
+        <span class="keyword">case</span> <span class="string">'decode'</span>
+
+        <span class="keyword">case</span> <span class="string">'update'</span>
+</pre><pre class="codeinput">            h= findobj(0,<span class="string">'tag'</span>,<span class="string">'giaodien'</span>);
+</pre><h2>---Lay du lieu vao<a name="9"></a></h2><pre class="codeinput">            err = false;
+</pre><h2>---Nhap n<a name="10"></a></h2><pre class="codeinput">            dlvao = findobj(h,<span class="string">'tag'</span>,<span class="string">'nin'</span>);
+            tam = get(dlvao,<span class="string">'string'</span>);
+            <span class="keyword">if</span> ~isequal(tam,<span class="string">''</span>)
+                tam = double(int16(eval(tam)));
+                <span class="keyword">if</span> (tam&gt;=0)
+                    <span class="keyword">if</span> (n~=tam)
+                        n = tam;
+                        <span class="comment">%---tao lai bang du lieu dat bang 00..0</span>
+                        dat = cell(power(2,m),power(2,k));
+                        <span class="keyword">for</span> i=1:n
+                            dat{1,1}=[dat{1,1} <span class="string">'0'</span>];
+                        <span class="keyword">end</span>
+                        <span class="keyword">for</span> i=1:power(2,m)
+                            <span class="keyword">for</span> j=1:power(2,k)
+                                dat{i,j}=dat{1,1};
+                            <span class="keyword">end</span>
+                        <span class="keyword">end</span>
+                    <span class="keyword">end</span>
+                <span class="keyword">else</span>
+                    errordlg(<span class="string">'Wrong input data'</span>,<span class="string">'Error'</span>);
+                    err=true;
+                <span class="keyword">end</span>
+            <span class="keyword">else</span> n=0;
+            <span class="keyword">end</span>
+            set(dlvao,<span class="string">'string'</span>,num2str(n));
+            <span class="keyword">if</span> err
+                <span class="keyword">return</span>
+            <span class="keyword">end</span>
+</pre><h2>---Nhap m<a name="11"></a></h2><pre class="codeinput">            dlvao = findobj(h,<span class="string">'tag'</span>,<span class="string">'min'</span>);
+            tam = get(dlvao,<span class="string">'string'</span>);
+            <span class="keyword">if</span> ~isequal(tam,<span class="string">''</span>)
+                tam = double(int16(eval(tam)));
+                <span class="keyword">if</span> (tam&gt;=0) &amp;&amp; (tam+k&lt;=15)
+                    dl = <span class="string">''</span>;
+                    <span class="keyword">for</span> i=1:n
+                        dl=[dl <span class="string">'0'</span>];    <span class="comment">%dl gom n bit 0</span>
+                    <span class="keyword">end</span>
+                    <span class="keyword">if</span> (m&lt;tam)
+                        <span class="comment">% truong hop nhap m lon hon m cu~</span>
+                        <span class="comment">% bang du lieu dat duoc mo rong them</span>
+                        dat(power(2,m)+1:power(2,tam),:) = cell(power(2,tam)-power(2,m),power(2,k));
+                        <span class="keyword">for</span> i=power(2,m)+1:power(2,tam)
+                            <span class="keyword">for</span> j=1:power(2,k)
+                                dat{i,j}=dl;
+                            <span class="keyword">end</span>
+                        <span class="keyword">end</span>
+                    <span class="keyword">end</span>
+                    <span class="keyword">if</span> (m&gt;tam)
+                        <span class="comment">% truong hop nhap m nho hon m cu~</span>
+                        <span class="comment">% bang  du lieu dat duoc thu hep lai</span>
+                        dat = dat(1:power(2,tam),:);
+                    <span class="keyword">end</span>
+                    <span class="keyword">if</span> (m~=tam)
+                        m = tam;
+                    <span class="keyword">end</span>
+                <span class="keyword">else</span>
+                    <span class="keyword">if</span> (tam+k&gt;15)
+                        errordlg(<span class="string">'Input data is too large'</span>,<span class="string">'Error'</span>);
+                        err = true;
+                    <span class="keyword">else</span>
+                        errordlg(<span class="string">'Wrong input data'</span>,<span class="string">'Error'</span>);
+                        err = true;
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+            <span class="keyword">else</span> m=0;
+            <span class="keyword">end</span>
+            set(dlvao,<span class="string">'string'</span>,num2str(m));
+            <span class="keyword">if</span> err
+                <span class="keyword">return</span>
+            <span class="keyword">end</span>
+</pre><h2>Nhap k<a name="12"></a></h2><pre class="codeinput">            dlvao = findobj(h,<span class="string">'tag'</span>,<span class="string">'kin'</span>);
+            tam = get(dlvao,<span class="string">'string'</span>);
+            <span class="keyword">if</span> ~isequal(tam,<span class="string">''</span>)
+                tam = double(int16(eval(tam)));
+                <span class="keyword">if</span> (tam&gt;=0) &amp;&amp; (m+tam&lt;=15)
+                    dl = <span class="string">''</span>;
+                    <span class="keyword">for</span> i=1:n
+                        dl=[dl <span class="string">'0'</span>];    <span class="comment">%dl gom n bit 0</span>
+                    <span class="keyword">end</span>
+                    <span class="keyword">if</span> (k&lt;tam)
+                        <span class="comment">% truong hop nhap k lon hon k cu~</span>
+                        <span class="comment">% bang du lieu dat duoc mo rong them</span>
+                        dat(:,power(2,k)+1:power(2,tam)) = cell(power(2,m),power(2,tam)-power(2,k));
+                        <span class="keyword">for</span> i=1:power(2,m)
+                            <span class="keyword">for</span> j=power(2,k)+1:power(2,tam)
+                                dat{i,j}=dl;
+                            <span class="keyword">end</span>
+                        <span class="keyword">end</span>
+                    <span class="keyword">end</span>
+                    <span class="keyword">if</span> (k&gt;tam)
+                        <span class="comment">% truong hop nhap k nho hon k cu~</span>
+                        <span class="comment">% bang  du lieu dat duoc thu hep lai</span>
+                        dat = dat(:,1:power(2,tam));
+                    <span class="keyword">end</span>
+                    <span class="keyword">if</span> (k~=tam)
+                        k = tam;
+                    <span class="keyword">end</span>
+                <span class="keyword">else</span>
+                    <span class="keyword">if</span> (m+tam&gt;15)
+                        errordlg(<span class="string">'Input data is too large'</span>,<span class="string">'Error'</span>);
+                        err = true;
+                    <span class="keyword">else</span>
+                        errordlg(<span class="string">'Wrong input data'</span>,<span class="string">'Error'</span>);
+                        err = true;
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+            <span class="keyword">else</span> k=0;
+            <span class="keyword">end</span>
+            set(dlvao,<span class="string">'string'</span>,num2str(k));
+            <span class="keyword">if</span> err
+                <span class="keyword">return</span>
+            <span class="keyword">end</span>
+</pre><h2>---tao bang du lieu S (dat)<a name="13"></a></h2><pre class="codeinput">            cnames = cell(1,power(2,k));
+            <span class="keyword">for</span> i=0:power(2,k)-1
+                idao=<span class="string">''</span>;
+                <span class="keyword">for</span> t=0:k-1
+                    idao(t+1)=bitand(bitshift(i,-t),1)+<span class="string">'0'</span>;
+                <span class="keyword">end</span>
+                cnames{i+1}=idao;
+            <span class="keyword">end</span>
+
+            rnames = cell(1,power(2,m));
+            <span class="keyword">for</span> i=0:power(2,m)-1
+                idao=<span class="string">''</span>;
+                <span class="keyword">for</span> t=0:m-1
+                    idao(t+1)=bitand(bitshift(i,-t),1)+<span class="string">'0'</span>;
+                <span class="keyword">end</span>
+                rnames{i+1}=idao;
+            <span class="keyword">end</span>
+
+            <span class="keyword">for</span> i=1:power(2,k)
+                ColumnEditable(i)=true;
+            <span class="keyword">end</span>
+
+            uitable(<span class="string">'tag'</span>,<span class="string">'Sdata'</span>,<span class="string">'units'</span>,<span class="string">'normalized'</span>,<span class="string">'Data'</span>,dat(1:power(2,m),1:power(2,k)),<span class="string">'ColumnName'</span>,cnames,<span class="string">'RowName'</span>,rnames,<span class="keyword">...</span>
+                <span class="string">'Position'</span>,[0.02 0.31 0.96 0.6],<span class="string">'ColumnEditable'</span>,ColumnEditable,<span class="string">'CellEditCallback'</span>,@updateSdata);
+</pre><img vspace="5" hspace="5" src="main_01.png"> <pre class="codeinput">    <span class="keyword">end</span>
+
+<span class="keyword">end</span>
+    <span class="keyword">function</span> updateSdata(o,e)
+</pre><h2>---Nhap S (dat)<a name="15"></a></h2><pre class="codeinput">        dat = get(o,<span class="string">'data'</span>);
+        tam = dat{e.Indices(1),e.Indices(2)};
+        <span class="keyword">if</span> (numel(tam)==n)
+            <span class="keyword">for</span> index=1:n
+                <span class="keyword">if</span> (tam(index)~=<span class="string">'0'</span>)&amp;&amp;(tam(index)~=<span class="string">'1'</span>)
+                    errordlg(<span class="string">'Input data must be binary'</span>,<span class="string">'Error'</span>);
+                    dat{e.Indices(1),e.Indices(2)} = e.PreviousData;
+                    set(o,<span class="string">'data'</span>,dat);
+                    <span class="keyword">return</span>
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+        <span class="keyword">else</span>
+            errordlg(<span class="string">'Input data length must be n'</span>,<span class="string">'Error'</span>);
+            dat{e.Indices(1),e.Indices(2)} = e.PreviousData;
+            set(o,<span class="string">'data'</span>,dat);
+        <span class="keyword">end</span>
+</pre><pre class="codeinput">    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">Warning: Cannot set Position while WindowStyle is 'docked'
+Warning: Cannot set Position while WindowStyle is 'docked'
+Warning: Cannot set Position while WindowStyle is 'docked'
+</pre><p class="footer"><br>
+            Published with MATLAB&reg; 7.6<br></p>
+      </div>
+      <!--
+##### SOURCE BEGIN #####
+function main(varargin)
+global n m k dat
+if (nargin==0)
+    %% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-khoi tao giao dienREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+    H = findobj(0,'Tag','giaodien');
+    if ~isempty(H)
+        figure(H);
+    else
+        H = figure('units','pixel','pos',[2 2 798 598],'menu','none', ...
+            'tag','giaodien',...
+            'Color',get(0,'DefaultUIControlBackgroundColor'), ...
+            'DefaultUIControlUnit','norm');
+        figure(H);
+
+        set(gca,'Visible','off');
+        f=uimenu('Label','File');
+        uimenu(f,'Label','Open','Callback','main(''open'')','Accelerator','O');
+        uimenu(f,'Label','Save','Callback','main(''save'')','Accelerator','S');
+        uimenu(f,'Label','Save as...','Callback','main(''SaveAs'')');
+        uimenu(f,'Label','Quit','Callback','exit','Accelerator','Q');
+
+        g=uimenu('Label','Operate');
+        uimenu(g,'Label','Encode','Callback','main(''encode'')','Accelerator','E');
+        uimenu(g,'Label','Decode','Callback','main(''decode'')','Accelerator','D');
+        %REPLACE_WITH_DASH_DASH-3 duong vien ngoai
+        uicontrol('style','frame','pos',[0.01 0.30 0.98 0.68]);
+        uicontrol('style','frame','pos',[0.01 0.15 0.98 0.14]);
+        uicontrol('style','frame','pos',[0.01 0.01 0.98 0.14]);
+
+        %% REPLACE_WITH_DASH_DASH-khung du lieu
+        n=0;
+        m=0;
+        k=0;
+        dat={''};
+
+        main('update');
+        uicontrol('style','text','string','  n     =','pos',[0.04 0.93 0.09 0.04],...
+            'tag','fn');
+        uicontrol('pos',[.12 .93 .10 .04],'style','edit','horiz','left', ...
+            'string','0','backgroundcolor','white', ...
+            'tag','nin','CallBack','main(''update'')');
+
+        uicontrol('style','text','string','  m    = ','pos',[0.24 0.93 0.09 0.04],...
+            'tag','fm');
+        uicontrol('pos',[.32 .93 .10 .04],'style','edit','horiz','left', ...
+            'string','0','backgroundcolor','white', ...
+            'tag','min','CallBack','main(''update'')');
+
+        uicontrol('style','text','string','  k    = ','pos',[0.44 0.93 0.09 0.04],...
+            'tag','fk');
+        uicontrol('pos',[.52 .93 .10 .04],'style','edit','horiz','left', ...
+            'string','0','backgroundcolor','white', ...
+            'tag','kin','CallBack','main(''update'')');
+
+        %% REPLACE_WITH_DASH_DASH-khung ket qua
+            uicontrol('style','text','pos',[0.02 0.23 0.03 0.03],'string','u=');
+            uicontrol('pos',[0.02 0.17 0.03 0.03],'string','v=','CallBack','main(''encode'')');
+            uicontrol('style','text','pos',[0.02 0.09 0.03 0.03],'string','r=');
+            uicontrol('pos',[0.02 0.03 0.03 0.03],'string','u=','CallBack','main(''decode'')');
+
+            uicontrol('style','edit','pos',[0.06 0.23 0.92 0.05],'string','', ...
+                'CallBack','main(''encode'')','tag','uin','backgroundcolor','white');
+            uicontrol('style','listbox','pos',[0.06 0.154 0.92 0.07],'string','',...
+                'tag','vout','backgroundcolor',[0.5 0.5 1]);
+            uicontrol('style','edit','pos',[0.06 0.09 0.92 0.05],'string','', ...
+                'CallBack','main(''decode'')','tag','rin','backgroundcolor','white');
+            uicontrol('style','listbox','pos',[0.06 0.013 0.92 0.07],'string','',...
+                'tag','uout','backgroundcolor',[1 0.5 0.5]);
+    end
+    %======= xong phan tao giao dien  ===========%
+else
+    chose=varargin(1);
+    switch chose{1}
+        %======= phan xu li =========================%
+        %         case 1
+        %             h= findobj(0,'tag','giaodien');
+        %             dlvao= findobj(h,'tag','vao');
+        %             x=get(dlvao,'string');
+        %             y=myfft(eval(['[' x ']']));
+        %             dlra = findobj(h,'tag','ra');
+        %             set(dlra,'string',lamdep(y),'value',1.0);
+        case 'open'
+            [filename, pathname, filterindex] = uigetfile( ...
+                {  '*.in*','DATA-files (*.in*)'; ...
+                '*.ou*','Result files (*.ou*)'; ...
+                '*.*',  'All Files (*.*)'}, ...
+                'Pick a file', ...
+                'MultiSelect', 'off');
+
+        case 'save'
+
+        case 'SaveAs'
+            [filename, pathname, filterindex] = uiputfile( ...
+                {'*.in*','DATA-files (*.in*)'; ...
+                '*.ou*','Result files (*.ou*)'; ...
+                '*.*',  'All Files (*.*)'}, ...
+                'Save as');
+
+        case 'encode'
+
+        case 'decode'
+
+        case 'update'
+            h= findobj(0,'tag','giaodien');
+            %% REPLACE_WITH_DASH_DASH-Lay du lieu vao
+            err = false;
+            %% REPLACE_WITH_DASH_DASH-Nhap n
+            dlvao = findobj(h,'tag','nin');
+            tam = get(dlvao,'string');
+            if ~isequal(tam,'')
+                tam = double(int16(eval(tam)));
+                if (tam>=0)
+                    if (n~=tam)
+                        n = tam;
+                        %REPLACE_WITH_DASH_DASH-tao lai bang du lieu dat bang 00..0
+                        dat = cell(power(2,m),power(2,k));
+                        for i=1:n
+                            dat{1,1}=[dat{1,1} '0'];
+                        end
+                        for i=1:power(2,m)
+                            for j=1:power(2,k)
+                                dat{i,j}=dat{1,1};
+                            end
+                        end
+                    end
+                else
+                    errordlg('Wrong input data','Error');
+                    err=true;
+                end
+            else n=0;
+            end
+            set(dlvao,'string',num2str(n));
+            if err
+                return
+            end
+            %% REPLACE_WITH_DASH_DASH-Nhap m
+            dlvao = findobj(h,'tag','min');
+            tam = get(dlvao,'string');
+            if ~isequal(tam,'')
+                tam = double(int16(eval(tam)));
+                if (tam>=0) && (tam+k<=15)
+                    dl = '';
+                    for i=1:n
+                        dl=[dl '0'];    %dl gom n bit 0
+                    end
+                    if (m<tam)
+                        % truong hop nhap m lon hon m cu~
+                        % bang du lieu dat duoc mo rong them
+                        dat(power(2,m)+1:power(2,tam),:) = cell(power(2,tam)-power(2,m),power(2,k));
+                        for i=power(2,m)+1:power(2,tam)
+                            for j=1:power(2,k)
+                                dat{i,j}=dl;
+                            end
+                        end
+                    end
+                    if (m>tam)
+                        % truong hop nhap m nho hon m cu~
+                        % bang  du lieu dat duoc thu hep lai
+                        dat = dat(1:power(2,tam),:);
+                    end
+                    if (m~=tam)
+                        m = tam;
+                    end
+                else
+                    if (tam+k>15)
+                        errordlg('Input data is too large','Error');
+                        err = true;
+                    else
+                        errordlg('Wrong input data','Error');
+                        err = true;
+                    end
+                end
+            else m=0;
+            end
+            set(dlvao,'string',num2str(m));
+            if err
+                return
+            end
+
+            %% Nhap k
+            dlvao = findobj(h,'tag','kin');
+            tam = get(dlvao,'string');
+            if ~isequal(tam,'')
+                tam = double(int16(eval(tam)));
+                if (tam>=0) && (m+tam<=15)
+                    dl = '';
+                    for i=1:n
+                        dl=[dl '0'];    %dl gom n bit 0
+                    end
+                    if (k<tam)
+                        % truong hop nhap k lon hon k cu~
+                        % bang du lieu dat duoc mo rong them
+                        dat(:,power(2,k)+1:power(2,tam)) = cell(power(2,m),power(2,tam)-power(2,k));
+                        for i=1:power(2,m)
+                            for j=power(2,k)+1:power(2,tam)
+                                dat{i,j}=dl;
+                            end
+                        end
+                    end
+                    if (k>tam)
+                        % truong hop nhap k nho hon k cu~
+                        % bang  du lieu dat duoc thu hep lai
+                        dat = dat(:,1:power(2,tam));
+                    end
+                    if (k~=tam)
+                        k = tam;
+                    end
+                else
+                    if (m+tam>15)
+                        errordlg('Input data is too large','Error');
+                        err = true;
+                    else
+                        errordlg('Wrong input data','Error');
+                        err = true;
+                    end
+                end
+            else k=0;
+            end
+            set(dlvao,'string',num2str(k));
+            if err
+                return
+            end
+
+            %% REPLACE_WITH_DASH_DASH-tao bang du lieu S (dat)
+
+            cnames = cell(1,power(2,k));
+            for i=0:power(2,k)-1
+                idao='';
+                for t=0:k-1
+                    idao(t+1)=bitand(bitshift(i,-t),1)+'0';
+                end
+                cnames{i+1}=idao;
+            end
+
+            rnames = cell(1,power(2,m));
+            for i=0:power(2,m)-1
+                idao='';
+                for t=0:m-1
+                    idao(t+1)=bitand(bitshift(i,-t),1)+'0';
+                end
+                rnames{i+1}=idao;
+            end
+
+            for i=1:power(2,k)
+                ColumnEditable(i)=true;
+            end
+
+            uitable('tag','Sdata','units','normalized','Data',dat(1:power(2,m),1:power(2,k)),'ColumnName',cnames,'RowName',rnames,...
+                'Position',[0.02 0.31 0.96 0.6],'ColumnEditable',ColumnEditable,'CellEditCallback',@updateSdata);
+
+    end
+
+end
+    function updateSdata(o,e)
+        %% REPLACE_WITH_DASH_DASH-Nhap S (dat)
+        dat = get(o,'data');
+        tam = dat{e.Indices(1),e.Indices(2)};
+        if (numel(tam)==n)
+            for index=1:n
+                if (tam(index)~='0')&&(tam(index)~='1')
+                    errordlg('Input data must be binary','Error');
+                    dat{e.Indices(1),e.Indices(2)} = e.PreviousData;
+                    set(o,'data',dat);
+                    return
+                end
+            end
+        else
+            errordlg('Input data length must be n','Error');
+            dat{e.Indices(1),e.Indices(2)} = e.PreviousData;
+            set(o,'data',dat);
+        end
+
+    end
+end
+##### SOURCE END #####
+-->
+   </body>
+</html>

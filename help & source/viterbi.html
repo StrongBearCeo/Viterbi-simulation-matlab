@@ -1,0 +1,1246 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+<html xmlns:mwsh="http://www.mathworks.com/namespace/mcode/v1/syntaxhighlight.dtd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      -->
+      <title>viterbi</title>
+      <meta name="generator" content="MATLAB 7.6">
+      <meta name="date" content="2008-05-15">
+      <meta name="m-file" content="viterbi"><style>
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head>
+   <body>
+      <div class="content">
+         <h2>Contents</h2>
+         <div>
+            <ul>
+               <li><a href="#3">-------khoi tao giao dien-------</a></li>
+               <li><a href="#5">---khung du lieu</a></li>
+               <li><a href="#6">---khung ket qua</a></li>
+               <li><a href="#9">======= phan xu li =========================%</a></li>
+               <li><a href="#10">--- cap nhat lai cac o du lieu</a></li>
+               <li><a href="#11">--- cap nhat bang du lieu S (dat)</a></li>
+               <li><a href="#13">--- Doc du lieu vao tu file</a></li>
+               <li><a href="#15">luu file input</a></li>
+               <li><a href="#17">luu file ket qua</a></li>
+               <li><a href="#19">luu tat ca cac file</a></li>
+               <li><a href="#21">luu file input voi ten khac</a></li>
+               <li><a href="#23">luu file ket qua voi ten khac</a></li>
+               <li><a href="#25">luu tat ca cac file voi ten khac</a></li>
+               <li><a href="#27">--- ma hoa nguon tin u</a></li>
+               <li><a href="#29">--- giai ma nguon tin r</a></li>
+               <li><a href="#31">--- Lay du lieu vao</a></li>
+               <li><a href="#32">--- Nhap n</a></li>
+               <li><a href="#33">--- Nhap m</a></li>
+               <li><a href="#34">--- Nhap k</a></li>
+               <li><a href="#36">Nhap tu ma nguon u</a></li>
+               <li><a href="#39">Nhap tu ma dich r</a></li>
+               <li><a href="#42">---Nhap S (dat)</a></li>
+               <li><a href="#43">--- Tim duong di de dat duoc so loi it nhat</a></li>
+               <li><a href="#44">--- Ve do hinh trang thai</a></li>
+            </ul>
+         </div><pre class="codeinput"><span class="keyword">function</span> viterbi(varargin)
+</pre><pre class="codeinput"><span class="keyword">global</span> n m k dat u v r uu numerr
+<span class="keyword">global</span> inputFile outputFile
+<span class="keyword">global</span> nguon
+set(0,<span class="string">'recursion'</span>,500);
+<span class="keyword">if</span> (nargin==0)
+</pre><h2>-------khoi tao giao dien-------<a name="3"></a></h2><pre class="codeinput">    H = findobj(0,<span class="string">'Tag'</span>,<span class="string">'giaodien'</span>);
+    <span class="keyword">if</span> ~isempty(H)
+        figure(H);
+    <span class="keyword">else</span>
+</pre><pre class="codeinput">        H = figure(<span class="string">'units'</span>,<span class="string">'pixel'</span>,<span class="string">'pos'</span>,[2 2 798 598],<span class="string">'menu'</span>,<span class="string">'none'</span>, <span class="keyword">...</span>
+            <span class="string">'tag'</span>,<span class="string">'giaodien'</span>,<span class="keyword">...</span>
+            <span class="string">'Color'</span>,get(0,<span class="string">'DefaultUIControlBackgroundColor'</span>), <span class="keyword">...</span>
+            <span class="string">'DefaultUIControlUnit'</span>,<span class="string">'norm'</span>,<span class="string">'name'</span>,<span class="string">'Viterbi Encode-Decode Program'</span>);
+        figure(H);
+
+        set(gca,<span class="string">'Visible'</span>,<span class="string">'off'</span>);
+        f=uimenu(<span class="string">'Label'</span>,<span class="string">'File'</span>);
+        uimenu(f,<span class="string">'Label'</span>,<span class="string">'Open'</span>,<span class="string">'Callback'</span>,<span class="string">'viterbi(''open'')'</span>,<span class="string">'Accelerator'</span>,<span class="string">'O'</span>);
+
+        uimenu(f,<span class="string">'Label'</span>,<span class="string">'Save input file'</span>,<span class="string">'Callback'</span>,<span class="string">'viterbi(''SaveIn'')'</span>,<span class="string">'Accelerator'</span>,<span class="string">'I'</span>);
+        uimenu(f,<span class="string">'Label'</span>,<span class="string">'Save output file'</span>,<span class="string">'Callback'</span>,<span class="string">'viterbi(''SaveOut'')'</span>,<span class="string">'Accelerator'</span>,<span class="string">'U'</span>);
+        uimenu(f,<span class="string">'Label'</span>,<span class="string">'Save all'</span>,<span class="string">'Callback'</span>,<span class="string">'viterbi(''SaveAll'')'</span>,<span class="string">'Accelerator'</span>,<span class="string">'A'</span>);
+
+        uimenu(f,<span class="string">'Label'</span>,<span class="string">'Save input file As...'</span>,<span class="string">'Callback'</span>,<span class="string">'viterbi(''SaveInAs'')'</span>);
+        uimenu(f,<span class="string">'Label'</span>,<span class="string">'Save output file As...'</span>,<span class="string">'Callback'</span>,<span class="string">'viterbi(''SaveOutAs'')'</span>);
+        uimenu(f,<span class="string">'Label'</span>,<span class="string">'Save all as...'</span>,<span class="string">'Callback'</span>,<span class="string">'viterbi(''SaveAs'')'</span>);
+
+        uimenu(f,<span class="string">'Label'</span>,<span class="string">'Quit'</span>,<span class="string">'Callback'</span>,<span class="string">'exit'</span>,<span class="string">'Accelerator'</span>,<span class="string">'Q'</span>);
+
+        g=uimenu(<span class="string">'Label'</span>,<span class="string">'Operate'</span>);
+        uimenu(g,<span class="string">'Label'</span>,<span class="string">'Encode'</span>,<span class="string">'Callback'</span>,<span class="string">'viterbi(''Nhap_u'')'</span>,<span class="string">'Accelerator'</span>,<span class="string">'E'</span>);
+        uimenu(g,<span class="string">'Label'</span>,<span class="string">'Decode'</span>,<span class="string">'Callback'</span>,<span class="string">'viterbi(''Nhap_r'')'</span>,<span class="string">'Accelerator'</span>,<span class="string">'D'</span>);
+
+        hh=uimenu(<span class="string">'Label'</span>,<span class="string">'Help'</span>);
+        uimenu(hh,<span class="string">'Label'</span>,<span class="string">'About'</span>,<span class="string">'Callback'</span>,@about);
+        <span class="comment">%---3 duong vien ngoai</span>
+        uicontrol(<span class="string">'style'</span>,<span class="string">'frame'</span>,<span class="string">'pos'</span>,[0.01 0.30 0.98 0.68]);
+        uicontrol(<span class="string">'style'</span>,<span class="string">'frame'</span>,<span class="string">'pos'</span>,[0.01 0.15 0.98 0.14]);
+        uicontrol(<span class="string">'style'</span>,<span class="string">'frame'</span>,<span class="string">'pos'</span>,[0.01 0.01 0.98 0.14]);
+</pre><h2>---khung du lieu<a name="5"></a></h2><pre class="codeinput">        u=<span class="string">''</span>;       v=<span class="string">''</span>;       r=<span class="string">''</span>;   uu=<span class="string">''</span>;
+        n=0;        m=0;        k=0;
+        dat={<span class="string">''</span>};
+        inputFile = <span class="string">''</span>;
+        outputFile= <span class="string">''</span>;
+
+        uicontrol(<span class="string">'style'</span>,<span class="string">'text'</span>,<span class="string">'string'</span>,<span class="string">'  n     ='</span>,<span class="string">'pos'</span>,[0.04 0.93 0.09 0.04],<span class="keyword">...</span>
+            <span class="string">'tag'</span>,<span class="string">'fn'</span>);
+        uicontrol(<span class="string">'pos'</span>,[.12 .93 .10 .04],<span class="string">'style'</span>,<span class="string">'edit'</span>,<span class="string">'horiz'</span>,<span class="string">'left'</span>, <span class="keyword">...</span>
+            <span class="string">'string'</span>,<span class="string">'0'</span>,<span class="string">'backgroundcolor'</span>,<span class="string">'white'</span>, <span class="keyword">...</span>
+            <span class="string">'tag'</span>,<span class="string">'nin'</span>,<span class="string">'CallBack'</span>,<span class="string">'viterbi(''input'')'</span>);
+
+        uicontrol(<span class="string">'style'</span>,<span class="string">'text'</span>,<span class="string">'string'</span>,<span class="string">'  m    = '</span>,<span class="string">'pos'</span>,[0.24 0.93 0.09 0.04],<span class="keyword">...</span>
+            <span class="string">'tag'</span>,<span class="string">'fm'</span>);
+        uicontrol(<span class="string">'pos'</span>,[.32 .93 .10 .04],<span class="string">'style'</span>,<span class="string">'edit'</span>,<span class="string">'horiz'</span>,<span class="string">'left'</span>, <span class="keyword">...</span>
+            <span class="string">'string'</span>,<span class="string">'0'</span>,<span class="string">'backgroundcolor'</span>,<span class="string">'white'</span>, <span class="keyword">...</span>
+            <span class="string">'tag'</span>,<span class="string">'min'</span>,<span class="string">'CallBack'</span>,<span class="string">'viterbi(''input'')'</span>);
+
+        uicontrol(<span class="string">'style'</span>,<span class="string">'text'</span>,<span class="string">'string'</span>,<span class="string">'  k    = '</span>,<span class="string">'pos'</span>,[0.44 0.93 0.09 0.04],<span class="keyword">...</span>
+            <span class="string">'tag'</span>,<span class="string">'fk'</span>);
+        uicontrol(<span class="string">'pos'</span>,[.52 .93 .10 .04],<span class="string">'style'</span>,<span class="string">'edit'</span>,<span class="string">'horiz'</span>,<span class="string">'left'</span>, <span class="keyword">...</span>
+            <span class="string">'string'</span>,<span class="string">'0'</span>,<span class="string">'backgroundcolor'</span>,<span class="string">'white'</span>, <span class="keyword">...</span>
+            <span class="string">'tag'</span>,<span class="string">'kin'</span>,<span class="string">'CallBack'</span>,<span class="string">'viterbi(''input'')'</span>);
+</pre><h2>---khung ket qua<a name="6"></a></h2><pre class="codeinput">            uicontrol(<span class="string">'style'</span>,<span class="string">'text'</span>,<span class="string">'pos'</span>,[0.02 0.23 0.03 0.03],<span class="string">'string'</span>,<span class="string">'u='</span>);
+            uicontrol(<span class="string">'pos'</span>,[0.02 0.17 0.03 0.03],<span class="string">'string'</span>,<span class="string">'v='</span>,<span class="string">'CallBack'</span>,<span class="string">'viterbi(''Nhap_u'')'</span>,<span class="string">'horiz'</span>,<span class="string">'left'</span>);
+            uicontrol(<span class="string">'style'</span>,<span class="string">'text'</span>,<span class="string">'pos'</span>,[0.02 0.09 0.03 0.03],<span class="string">'string'</span>,<span class="string">'r='</span>);
+            uicontrol(<span class="string">'pos'</span>,[0.02 0.03 0.03 0.03],<span class="string">'string'</span>,<span class="string">'u='</span>,<span class="string">'CallBack'</span>,<span class="string">'viterbi(''Nhap_r'')'</span>,<span class="string">'horiz'</span>,<span class="string">'left'</span>);
+
+            uicontrol(<span class="string">'style'</span>,<span class="string">'edit'</span>,<span class="string">'pos'</span>,[0.06 0.23 0.92 0.05],<span class="string">'string'</span>,<span class="string">''</span>, <span class="keyword">...</span>
+                <span class="string">'CallBack'</span>,<span class="string">'viterbi(''Nhap_u'')'</span>,<span class="string">'tag'</span>,<span class="string">'uin'</span>,<span class="string">'backgroundcolor'</span>,<span class="string">'white'</span>,<span class="string">'horiz'</span>,<span class="string">'left'</span>);
+            uicontrol(<span class="string">'style'</span>,<span class="string">'listbox'</span>,<span class="string">'pos'</span>,[0.06 0.154 0.92 0.07],<span class="string">'string'</span>,<span class="string">''</span>,<span class="keyword">...</span>
+                <span class="string">'tag'</span>,<span class="string">'vout'</span>,<span class="string">'backgroundcolor'</span>,[0.5 0.5 1]);
+            uicontrol(<span class="string">'style'</span>,<span class="string">'edit'</span>,<span class="string">'pos'</span>,[0.06 0.09 0.82 0.05],<span class="string">'string'</span>,<span class="string">''</span>, <span class="keyword">...</span>
+                <span class="string">'CallBack'</span>,<span class="string">'viterbi(''Nhap_r'')'</span>,<span class="string">'tag'</span>,<span class="string">'rin'</span>,<span class="string">'backgroundcolor'</span>,<span class="string">'white'</span>,<span class="string">'horiz'</span>,<span class="string">'left'</span>);
+            uicontrol(<span class="string">'style'</span>,<span class="string">'listbox'</span>,<span class="string">'pos'</span>,[0.06 0.013 0.82 0.07],<span class="string">'string'</span>,<span class="string">''</span>,<span class="keyword">...</span>
+                <span class="string">'tag'</span>,<span class="string">'uout'</span>,<span class="string">'backgroundcolor'</span>,[1 0.5 0.5]);
+            uicontrol(<span class="string">'style'</span>,<span class="string">'text'</span>,<span class="string">'pos'</span>,[0.89 0.03 0.09 0.05],<span class="string">'string'</span>,<span class="string">'Num of error'</span>, <span class="keyword">...</span>
+                <span class="string">'horiz'</span>,<span class="string">'left'</span>);
+            uicontrol(<span class="string">'style'</span>,<span class="string">'text'</span>,<span class="string">'pos'</span>,[0.89 0.013 0.09 0.04],<span class="string">'string'</span>,<span class="string">'0'</span>,<span class="keyword">...</span>
+                <span class="string">'tag'</span>,<span class="string">'numerr'</span>,<span class="string">'backgroundcolor'</span>,[1 0.5 0.5]);
+            uicontrol(<span class="string">'pos'</span>,[0.90 0.089 0.07 0.05],<span class="string">'string'</span>,<span class="string">'Draw'</span>,<span class="string">'CallBack'</span>,@draw,<span class="string">'horiz'</span>,<span class="string">'left'</span>);
+            <span class="comment">%tao du lieu ban dau</span>
+            viterbi(<span class="string">'update'</span>);
+</pre><pre class="codeinput">    <span class="keyword">end</span>
+    <span class="comment">%======= xong phan tao giao dien  ===========%</span>
+</pre><pre class="codeinput"><span class="keyword">else</span>
+</pre><h2>======= phan xu li =========================%<a name="9"></a></h2><pre class="codeinput">    chose=varargin(1);
+    <span class="keyword">switch</span> chose{1}
+        <span class="keyword">case</span> <span class="string">'update'</span>
+</pre><h2>--- cap nhat lai cac o du lieu<a name="10"></a></h2><pre class="codeinput">            h= findobj(0,<span class="string">'tag'</span>,<span class="string">'giaodien'</span>);
+            figure(h);
+            dlvao = findobj(h,<span class="string">'tag'</span>,<span class="string">'nin'</span>);
+            set(dlvao,<span class="string">'string'</span>,num2str(n));
+            dlvao = findobj(h,<span class="string">'tag'</span>,<span class="string">'min'</span>);
+            set(dlvao,<span class="string">'string'</span>,num2str(m));
+            dlvao = findobj(h,<span class="string">'tag'</span>,<span class="string">'kin'</span>);
+            set(dlvao,<span class="string">'string'</span>,num2str(k));
+            dlvao = findobj(h,<span class="string">'tag'</span>,<span class="string">'uin'</span>);
+            set(dlvao,<span class="string">'string'</span>,(u));
+            dlvao = findobj(h,<span class="string">'tag'</span>,<span class="string">'rin'</span>);
+            set(dlvao,<span class="string">'string'</span>,(r));
+            dlvao = findobj(h,<span class="string">'tag'</span>,<span class="string">'vout'</span>);
+            set(dlvao,<span class="string">'string'</span>,(v));
+            dlvao = findobj(h,<span class="string">'tag'</span>,<span class="string">'uout'</span>);
+            set(dlvao,<span class="string">'string'</span>,(uu));
+            dlvao = findobj(h,<span class="string">'tag'</span>,<span class="string">'numerr'</span>);
+            set(dlvao,<span class="string">'string'</span>,num2str(numerr));
+</pre><img vspace="5" hspace="5" src="viterbi_02.png"> <h2>--- cap nhat bang du lieu S (dat)<a name="11"></a></h2><pre class="codeinput">            cnames = cell(1,power(2,k));
+            <span class="keyword">for</span> i=0:power(2,k)-1
+                idao=<span class="string">''</span>;
+                <span class="keyword">for</span> t=0:k-1
+                    idao(t+1)=bitand(bitshift(i,-t),1)+<span class="string">'0'</span>;
+                <span class="keyword">end</span>
+                cnames{i+1}=idao;
+            <span class="keyword">end</span>
+
+            rnames = cell(1,power(2,m));
+            <span class="keyword">for</span> i=0:power(2,m)-1
+                idao=<span class="string">''</span>;
+                <span class="keyword">for</span> t=0:m-1
+                    idao(t+1)=bitand(bitshift(i,-t),1)+<span class="string">'0'</span>;
+                <span class="keyword">end</span>
+                rnames{i+1}=idao;
+            <span class="keyword">end</span>
+
+            <span class="keyword">for</span> i=1:power(2,k)
+                ColumnEditable(i)=true;
+            <span class="keyword">end</span>
+
+            uitable(<span class="string">'tag'</span>,<span class="string">'Sdata'</span>,<span class="string">'units'</span>,<span class="string">'normalized'</span>,<span class="string">'Data'</span>,dat(1:power(2,m),1:power(2,k)),<span class="string">'ColumnName'</span>,cnames,<span class="string">'RowName'</span>,rnames,<span class="keyword">...</span>
+                <span class="string">'Position'</span>,[0.02 0.31 0.96 0.6],<span class="string">'ColumnEditable'</span>,ColumnEditable,<span class="string">'CellEditCallback'</span>,@updateSdata);
+</pre><pre class="codeinput">        <span class="keyword">case</span> <span class="string">'open'</span>
+</pre><h2>--- Doc du lieu vao tu file<a name="13"></a></h2><pre class="codeinput">            [filename, pathname, filterindex] = uigetfile( <span class="keyword">...</span>
+                {  <span class="string">'*.in*'</span>,<span class="string">'DATA-files (*.in*)'</span>; <span class="keyword">...</span>
+                <span class="string">'*.ou*'</span>,<span class="string">'Result files (*.ou*)'</span>; <span class="keyword">...</span>
+                <span class="string">'*.*'</span>,  <span class="string">'All Files (*.*)'</span>}, <span class="keyword">...</span>
+                <span class="string">'Pick a file'</span>, <span class="keyword">...</span>
+                <span class="string">'MultiSelect'</span>, <span class="string">'off'</span>);
+            <span class="keyword">switch</span> filterindex
+                <span class="keyword">case</span> 1
+                    <span class="comment">% Doc du lieu tu file input</span>
+                    inputFile = [pathname,filename];
+                    fin = fopen(inputFile,<span class="string">'r'</span>);
+                    n = fscanf(fin,<span class="string">'%d'</span>,1) ;
+                    m = fscanf(fin,<span class="string">'%d'</span>,1) ;
+                    k = fscanf(fin,<span class="string">'%d'</span>,1);
+
+                    dat = cell(power(2,m),power(2,k));
+                    <span class="keyword">for</span> i=1:power(2,m);
+                        <span class="keyword">for</span> j=1:power(2,k)
+                            dat{i,j} = fscanf(fin,<span class="string">'%s'</span>,1);
+                        <span class="keyword">end</span>
+                    <span class="keyword">end</span>
+
+                    u = fscanf(fin,<span class="string">'%s'</span>,1);
+                    r = fscanf(fin,<span class="string">'%s'</span>,1);
+                <span class="keyword">case</span> 2
+                    <span class="comment">% Doc du lieu tu file output</span>
+                    outputFile=[pathname,filename];
+                    fout = fopen(outputFile,<span class="string">'r'</span>);
+                    v       = fscanf(fout,<span class="string">'%s'</span>,1);
+                    numerr  = fscanf(fout,<span class="string">'%d'</span>,1);
+                    uu      = fscanf(fout,<span class="string">'%s'</span>,1);
+            <span class="keyword">end</span>
+            <span class="comment">% cap nhat lai du lieu tren cac o</span>
+            viterbi(<span class="string">'update'</span>);
+            fclose(<span class="string">'all'</span>)
+</pre><pre class="codeinput">        <span class="keyword">case</span> <span class="string">'SaveIn'</span>
+</pre><h2>luu file input<a name="15"></a></h2><pre class="codeinput">            <span class="keyword">if</span> ~isequal(inputFile,[0 0])
+                <span class="keyword">if</span> ~isequal(inputFile,<span class="string">''</span>)
+                    fid = fopen(inputFile,<span class="string">'w'</span>);
+                    fprintf(fid,<span class="string">'%d %d %d \n'</span>,n,m,k);
+                    <span class="keyword">for</span> i=1:power(2,m)
+                        <span class="keyword">for</span> j=1:power(2,k)
+                            fprintf(fid,<span class="string">'%s '</span>,dat{i,j});
+                        <span class="keyword">end</span>
+                        fprintf(fid,<span class="string">'\n'</span>);
+                    <span class="keyword">end</span>
+                    fprintf(fid,<span class="string">'%s\n'</span>,u);
+                    fprintf(fid,<span class="string">'%s'</span>,r);
+                    fclose(fid);
+                <span class="keyword">else</span>
+                    viterbi(<span class="string">'SaveInAs'</span>);
+                <span class="keyword">end</span>
+            <span class="keyword">else</span> inputFile=<span class="string">''</span>;
+            <span class="keyword">end</span>
+</pre><pre class="codeinput">        <span class="keyword">case</span> <span class="string">'SaveOut'</span>
+</pre><h2>luu file ket qua<a name="17"></a></h2><pre class="codeinput">            <span class="keyword">if</span> ~isequal(outputFile,[0 0])
+                <span class="keyword">if</span> ~isequal(outputFile,<span class="string">''</span>)
+                    fid = fopen(outputFile,<span class="string">'w'</span>);
+                    fprintf(fid,<span class="string">'%s\n'</span>,v);
+                    fprintf(fid,<span class="string">'%d\n'</span>,numerr);
+                    fprintf(fid,<span class="string">'%s'</span>,uu);
+                    fclose(fid);
+                <span class="keyword">else</span>
+                    viterbi(<span class="string">'SaveOutAs'</span>);
+                <span class="keyword">end</span>
+            <span class="keyword">else</span> outputFile=<span class="string">''</span>;
+            <span class="keyword">end</span>
+</pre><pre class="codeinput">        <span class="keyword">case</span> <span class="string">'SaveAll'</span>
+</pre><h2>luu tat ca cac file<a name="19"></a></h2><pre class="codeinput">            viterbi(<span class="string">'SaveIn'</span>);
+            viterbi(<span class="string">'SaveOut'</span>);
+</pre><pre class="codeinput">        <span class="keyword">case</span> <span class="string">'SaveInAs'</span>
+</pre><h2>luu file input voi ten khac<a name="21"></a></h2><pre class="codeinput">            [filename, pathname] = uiputfile( <span class="keyword">...</span>
+                {<span class="string">'*.in*'</span>,<span class="string">'DATA-files (*.in*)'</span>; <span class="keyword">...</span>
+                <span class="string">'*.*'</span>,  <span class="string">'All Files (*.*)'</span>}, <span class="keyword">...</span>
+                <span class="string">'Save input file as'</span>);
+            inputFile = [pathname filename];
+            viterbi(<span class="string">'SaveIn'</span>);
+</pre><pre class="codeinput">        <span class="keyword">case</span> <span class="string">'SaveOutAs'</span>
+</pre><h2>luu file ket qua voi ten khac<a name="23"></a></h2><pre class="codeinput">            [filename, pathname] = uiputfile( <span class="keyword">...</span>
+                {<span class="string">'*.ou*'</span>,<span class="string">'Result files (*.ou*)'</span>; <span class="keyword">...</span>
+                <span class="string">'*.*'</span>,  <span class="string">'All Files (*.*)'</span>}, <span class="keyword">...</span>
+                <span class="string">'Save output file as'</span>);
+            outputFile = [pathname filename];
+            viterbi(<span class="string">'SaveOut'</span>);
+</pre><pre class="codeinput">        <span class="keyword">case</span> <span class="string">'SaveAs'</span>
+</pre><h2>luu tat ca cac file voi ten khac<a name="25"></a></h2><pre class="codeinput">            viterbi(<span class="string">'SaveInAs'</span>);
+            viterbi(<span class="string">'SaveOutAs'</span>);
+</pre><pre class="codeinput">        <span class="keyword">case</span> <span class="string">'encode'</span>
+</pre><h2>--- ma hoa nguon tin u<a name="27"></a></h2><pre class="codeinput">            v = <span class="string">''</span>;
+            s = 0;          <span class="comment">% trang thai cua cac FF</span>
+            nu= numel(u);   <span class="comment">% so bit cua nguon tin u</span>
+            i = 1;          <span class="comment">% i la bit bat dau cua cum k bit dang xet cua u</span>
+            <span class="keyword">while</span> i&lt;=nu
+                <span class="comment">% doc tu ma nguon co k phan tu</span>
+                bitnguon = 0;
+                <span class="keyword">for</span> t=0:k-1
+                    bitnguon = bitnguon + bitshift(u(i+t)-<span class="string">'0'</span>,t);
+                <span class="keyword">end</span>
+                v = [v dat{s+1,bitnguon+1}];    <span class="comment">% +1 la do toa do duoc danh so tu 1</span>
+                <span class="comment">% chen k bit nguon vao ben trai cua s</span>
+                s = bitshift(s,k) + bitnguon;
+                s = bitand(s,power(2,m)-1);
+                i = i +k;
+            <span class="keyword">end</span>
+            viterbi(<span class="string">'update'</span>);
+</pre><pre class="codeoutput">WDEavRCxrA000090002</pre><pre class="codeinput">        <span class="keyword">case</span> <span class="string">'decode'</span>
+</pre><h2>--- giai ma nguon tin r<a name="29"></a></h2><pre class="codeinput">            nr = numel(r);                      <span class="comment">% so bit cua nguon tin can giai ma r</span>
+            hh = 1;                             <span class="comment">% cot hien hanh cua ma tran loi()</span>
+            mu2m = power(2,m);
+            loi = inf(mu2m,2);                  <span class="comment">% loi(:,hh) so loi den thoi diem dang xet</span>
+            loi(1,1) = 0;
+            truoc = zeros(mu2m,nr/n);           <span class="comment">% trang thai truoc khi them vao k bit nguon cua cac FF</span>
+            l  = 0;                             <span class="comment">% cot dang xet cua ma tran truoc()</span>
+            ir = 1;                             <span class="comment">% vi tri bat dau cua cum n bit dang xet</span>
+            <span class="comment">% tao bang loi()</span>
+            <span class="keyword">while</span> ir&lt;=nr
+                hh = 3-hh;                      <span class="comment">% doi cot hien hanh</span>
+                loi(:,hh) = inf(mu2m,1);
+                l = l+1;
+                mu2k = power(2,k);
+                <span class="keyword">for</span> s = 0:mu2m-1
+                    <span class="comment">% doi voi tung trang thai cua thanh ghi</span>
+                    bitnguon = bitand(s,mu2k-1);
+                    <span class="keyword">for</span> bitdau = 0:mu2k-1
+                        <span class="comment">% bitdau : cac bit mat di cua thanh ghi sau khi</span>
+                        <span class="comment">% chen bit nguon vao</span>
+                        truocs = bitshift(bitdau,m-k)+bitshift(s,-k);
+                        <span class="comment">% truocs : trang thai truoc cua s</span>
+                        tam = dat{truocs+1,bitnguon+1};
+                        <span class="comment">% +1 la do toa do trong ma tran dat() duoc danh so</span>
+                        <span class="comment">% tu(1,1)</span>
+                        soloi = 0;
+                        <span class="keyword">for</span> t = 1:n
+                            <span class="keyword">if</span> tam(t)~=r(ir+t-1)
+                                soloi = soloi+1;
+                            <span class="keyword">end</span>
+                        <span class="keyword">end</span>
+                        <span class="keyword">if</span> loi(s+1,hh) &gt; loi(truocs+1,3-hh)+soloi
+                            loi(s+1,hh) = loi(truocs+1,3-hh)+soloi;
+                            truoc(s+1,l) = truocs+1;
+                        <span class="keyword">end</span>
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+                ir = ir+n;
+            <span class="keyword">end</span>
+            <span class="comment">%ket thuc qua trinh tao bang loi()</span>
+
+            <span class="comment">%xac dinh so loi it nhat</span>
+            numerr = loi(1,hh);
+            sht  = 1;
+            <span class="keyword">for</span> i = 2:mu2m
+                <span class="keyword">if</span> numerr &gt; loi(i,hh)
+                    numerr = loi(i,hh);
+                    sht = i;
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+
+            <span class="comment">%tim duong di de dat duoc so loi it nhat</span>
+            set(0,<span class="string">'RecursionLimit'</span>,max(2000,l+2))
+            luu=l;
+            nguon = zeros(luu);
+            <span class="keyword">while</span> (l&gt;=1)
+                <span class="comment">%tach ra tung cum 1000 phan tu de quy</span>
+                find(l,sht);
+                l=l-1000;
+            <span class="keyword">end</span>
+            <span class="comment">%tu ma nguon la uu</span>
+            uu = <span class="string">''</span>;
+            <span class="keyword">for</span> i=1:luu
+                <span class="keyword">for</span> t=0:k-1
+                    uu = [uu bitand(bitshift(nguon(i),-t),1)+<span class="string">'0'</span>];
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+</pre><pre class="codeoutput">Error using ==&gt; evalin
+Undefined function or variable 'draw'.
+
+</pre><pre class="codeinput">        <span class="keyword">case</span> <span class="string">'input'</span>
+</pre><h2>--- Lay du lieu vao<a name="31"></a></h2><pre class="codeinput">            h= findobj(0,<span class="string">'tag'</span>,<span class="string">'giaodien'</span>);
+</pre><h2>--- Nhap n<a name="32"></a></h2><pre class="codeinput">            dlvao = findobj(h,<span class="string">'tag'</span>,<span class="string">'nin'</span>);
+            tam = get(dlvao,<span class="string">'string'</span>);
+            <span class="keyword">if</span> ~isequal(tam,<span class="string">''</span>)
+                tam = double(int16(eval(tam)));
+                <span class="keyword">if</span> (tam&gt;=0)
+                    <span class="keyword">if</span> (n~=tam)
+                        n = tam;
+                        r = <span class="string">''</span>;
+                        <span class="comment">%n thay doi thi r khong con thoa mod(nr,n)==0</span>
+                        <span class="comment">%---tao lai bang du lieu dat bang 00..0</span>
+                        dat = cell(power(2,m),power(2,k));
+                        <span class="keyword">for</span> i=1:n
+                            dat{1,1}=[dat{1,1} <span class="string">'0'</span>];
+                        <span class="keyword">end</span>
+                        <span class="keyword">for</span> i=1:power(2,m)
+                            <span class="keyword">for</span> j=1:power(2,k)
+                                dat{i,j}=dat{1,1};
+                            <span class="keyword">end</span>
+                        <span class="keyword">end</span>
+                    <span class="keyword">end</span>
+                <span class="keyword">else</span>
+                    x = errordlg(<span class="string">'Wrong input data'</span>,<span class="string">'Error'</span>);
+                    waitfor(x)
+                <span class="keyword">end</span>
+            <span class="keyword">else</span> n=0;
+            <span class="keyword">end</span>
+</pre><h2>--- Nhap m<a name="33"></a></h2><pre class="codeinput">            dlvao = findobj(h,<span class="string">'tag'</span>,<span class="string">'min'</span>);
+            tam = get(dlvao,<span class="string">'string'</span>);
+            <span class="keyword">if</span> ~isequal(tam,<span class="string">''</span>)
+                tam = double(int16(eval(tam)));
+                <span class="keyword">if</span> (tam&gt;=0) &amp;&amp; (tam+k&lt;=15)
+                    dl = <span class="string">''</span>;
+                    <span class="keyword">for</span> i=1:n
+                        dl=[dl <span class="string">'0'</span>];    <span class="comment">%dl gom n bit 0</span>
+                    <span class="keyword">end</span>
+                    <span class="keyword">if</span> (m&lt;tam)
+                        <span class="comment">% truong hop nhap m lon hon m cu~</span>
+                        <span class="comment">% bang du lieu dat duoc mo rong them</span>
+                        dat(power(2,m)+1:power(2,tam),:) = cell(power(2,tam)-power(2,m),power(2,k));
+                        <span class="keyword">for</span> i=power(2,m)+1:power(2,tam)
+                            <span class="keyword">for</span> j=1:power(2,k)
+                                dat{i,j}=dl;
+                            <span class="keyword">end</span>
+                        <span class="keyword">end</span>
+                    <span class="keyword">end</span>
+                    <span class="keyword">if</span> (m&gt;tam)
+                        <span class="comment">% truong hop nhap m nho hon m cu~</span>
+                        <span class="comment">% bang  du lieu dat duoc thu hep lai</span>
+                        dat = dat(1:power(2,tam),:);
+                    <span class="keyword">end</span>
+                    <span class="keyword">if</span> (m~=tam)
+                        m = tam;
+                    <span class="keyword">end</span>
+                <span class="keyword">else</span>
+                    <span class="keyword">if</span> (tam+k&gt;15)
+                        x = errordlg(<span class="string">'Input data is too large'</span>,<span class="string">'Error'</span>);
+                        waitfor(x)
+                    <span class="keyword">else</span>
+                        errordlg(<span class="string">'Wrong input data'</span>,<span class="string">'Error'</span>);
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+            <span class="keyword">else</span> m=0;
+            <span class="keyword">end</span>
+</pre><h2>--- Nhap k<a name="34"></a></h2><pre class="codeinput">            dlvao = findobj(h,<span class="string">'tag'</span>,<span class="string">'kin'</span>);
+            tam = get(dlvao,<span class="string">'string'</span>);
+            <span class="keyword">if</span> ~isequal(tam,<span class="string">''</span>)
+                tam = double(int16(eval(tam)));
+                <span class="keyword">if</span> (tam&gt;=0) &amp;&amp; (m+tam&lt;=15)
+                    dl = <span class="string">''</span>;
+                    <span class="keyword">for</span> i=1:n
+                        dl=[dl <span class="string">'0'</span>];    <span class="comment">%dl gom n bit 0</span>
+                    <span class="keyword">end</span>
+                    <span class="keyword">if</span> (k&lt;tam)
+                        <span class="comment">% truong hop nhap k lon hon k cu~</span>
+                        <span class="comment">% bang du lieu dat duoc mo rong them</span>
+                        dat(:,power(2,k)+1:power(2,tam)) = cell(power(2,m),power(2,tam)-power(2,k));
+                        <span class="keyword">for</span> i=1:power(2,m)
+                            <span class="keyword">for</span> j=power(2,k)+1:power(2,tam)
+                                dat{i,j}=dl;
+                            <span class="keyword">end</span>
+                        <span class="keyword">end</span>
+                    <span class="keyword">end</span>
+                    <span class="keyword">if</span> (k&gt;tam)
+                        <span class="comment">% truong hop nhap k nho hon k cu~</span>
+                        <span class="comment">% bang  du lieu dat duoc thu hep lai</span>
+                        dat = dat(:,1:power(2,tam));
+                    <span class="keyword">end</span>
+                    <span class="keyword">if</span> (k~=tam)
+                        k = tam;
+                        r = <span class="string">''</span>;
+                        <span class="comment">%k thay doi thi u khong con thoa mod(nu,k)==0</span>
+                    <span class="keyword">end</span>
+                <span class="keyword">else</span>
+                    <span class="keyword">if</span> (m+tam&gt;15)
+                        x = errordlg(<span class="string">'Input data is too large'</span>,<span class="string">'Error'</span>);
+                        waitfor(x)
+                    <span class="keyword">else</span>
+                        x = errordlg(<span class="string">'Wrong input data'</span>,<span class="string">'Error'</span>);
+                        waitfor(x)
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+            <span class="keyword">else</span> k=0;
+            <span class="keyword">end</span>
+            <span class="comment">% --- Cap nhat lai cac o du lieu</span>
+            viterbi(<span class="string">'update'</span>);
+</pre><pre class="codeinput">        <span class="keyword">case</span> <span class="string">'Nhap_u'</span>
+</pre><h2>Nhap tu ma nguon u<a name="36"></a></h2><pre class="codeinput">            dulieu = findobj(0,<span class="string">'tag'</span>,<span class="string">'uin'</span>);
+            tam = get(dulieu,<span class="string">'string'</span>);
+            err = false;
+            <span class="keyword">if</span> ~(mod(numel(tam),k)==0)
+                x = errordlg(<span class="string">'Number of bits of u (nu) must be satisfied : mod(nu,k)==0'</span>,<span class="string">'Error'</span>);
+                waitfor(x)
+                err = true;
+            <span class="keyword">else</span>
+                <span class="keyword">for</span> i=1:numel(tam)
+                    <span class="keyword">if</span> (tam(i)~=<span class="string">'0'</span>)&amp;&amp;(tam(i)~=<span class="string">'1'</span>)
+                        x = errordlg(<span class="string">'Input data must be binary'</span>,<span class="string">'Error'</span>);
+                        waitfor(x)
+                        err = true;
+                        <span class="keyword">break</span>;
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+            <span class="keyword">if</span> ~err
+                u = tam;
+            <span class="keyword">end</span>
+            viterbi(<span class="string">'update'</span>);
+            viterbi(<span class="string">'encode'</span>);
+</pre><pre class="codeinput">        <span class="keyword">case</span> <span class="string">'Nhap_r'</span>
+</pre><pre class="codeinput">            dulieu = findobj(0,<span class="string">'tag'</span>,<span class="string">'rin'</span>);
+            tam = get(dulieu,<span class="string">'string'</span>);
+            err = false;
+            <span class="keyword">if</span> ~(mod(numel(tam),n)==0)
+                x = errordlg(<span class="string">'Number of bits of r (nr) must be satisfied : mod(nr,n)==0'</span>,<span class="string">'Error'</span>);
+                waitfor(x)
+                err = true;
+            <span class="keyword">else</span>
+                <span class="keyword">for</span> i=1:numel(tam)
+                    <span class="keyword">if</span> (tam(i)~=<span class="string">'0'</span>)&amp;&amp;(tam(i)~=<span class="string">'1'</span>)
+                        x = errordlg(<span class="string">'Input data must be binary'</span>,<span class="string">'Error'</span>);
+                        waitfor(x)
+                        err = true;
+                        <span class="keyword">break</span>;
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+            <span class="keyword">if</span> ~err
+                r = tam;
+            <span class="keyword">end</span>
+            viterbi(<span class="string">'update'</span>);
+            viterbi(<span class="string">'decode'</span>);
+</pre><pre class="codeoutput">WDEavRCxrA000090004</pre><h2>Nhap tu ma dich r<a name="39"></a></h2><pre class="codeinput">    <span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="viterbi_01.png"> <img vspace="5" hspace="5" src="viterbi_03.png"> <pre class="codeinput"><span class="keyword">end</span>
+</pre><pre class="codeoutput">WDEavRCxrA000070005</pre><pre class="codeoutput">WDEavRCxrA000070006</pre><h2>---Nhap S (dat)<a name="42"></a></h2><pre class="codeinput">    <span class="keyword">function</span> updateSdata(o,e)
+        dat = get(o,<span class="string">'data'</span>);
+        tam = dat{e.Indices(1),e.Indices(2)};
+        <span class="keyword">if</span> (numel(tam)==n)
+            <span class="keyword">for</span> index=1:n
+                <span class="keyword">if</span> (tam(index)~=<span class="string">'0'</span>)&amp;&amp;(tam(index)~=<span class="string">'1'</span>)
+                    x = errordlg(<span class="string">'Input data must be binary'</span>,<span class="string">'Error'</span>);
+                    waitfor(x)
+                    dat{e.Indices(1),e.Indices(2)} = e.PreviousData;
+                    set(o,<span class="string">'data'</span>,dat);
+                    <span class="keyword">return</span>
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+        <span class="keyword">else</span>
+            x = errordlg(<span class="string">'Input data length must be n'</span>,<span class="string">'Error'</span>);
+            waitfor(x)
+            dat{e.Indices(1),e.Indices(2)} = e.PreviousData;
+            set(o,<span class="string">'data'</span>,dat);
+        <span class="keyword">end</span>
+
+    <span class="keyword">end</span>
+</pre><h2>--- Tim duong di de dat duoc so loi it nhat<a name="43"></a></h2><pre class="codeinput">    <span class="keyword">function</span> find(x,sht)
+        <span class="keyword">if</span> (x&gt;1)&amp;&amp;(x&gt;l-999)
+            find(x-1,truoc(sht,x));
+        <span class="keyword">end</span>
+        nguon(x) = bitand(sht-1,mu2k-1);
+    <span class="keyword">end</span>
+</pre><h2>--- Ve do hinh trang thai<a name="44"></a></h2><pre class="codeinput">    <span class="keyword">function</span> draw(varargin)
+        H = findobj(0,<span class="string">'Tag'</span>,<span class="string">'luocdo'</span>);
+        <span class="keyword">if</span> ~isempty(H)
+            delete(H);
+        <span class="keyword">end</span>
+        H = figure(<span class="string">'units'</span>,<span class="string">'pixel'</span>,<span class="string">'pos'</span>,[2 2 798 598],<span class="string">'menu'</span>,<span class="string">'none'</span>, <span class="keyword">...</span>
+            <span class="string">'tag'</span>,<span class="string">'luocdo'</span>,<span class="keyword">...</span>
+            <span class="string">'Color'</span>,[1 1 0.8], <span class="keyword">...</span>
+            <span class="string">'DefaultUIControlUnit'</span>,<span class="string">'norm'</span>,<span class="string">'name'</span>,<span class="string">'Encode process'</span>);
+        figure(H);
+        axis <span class="string">off</span>
+        mu2m=power(2,m);
+        ss = 0;          <span class="comment">% trang thai cua cac FF</span>
+        nu= numel(u);   <span class="comment">% so bit cua nguon tin u</span>
+        stepii = 0.8/(power(2,m)-1);
+        stepjj = 0.8/nu*k;
+        <span class="keyword">for</span> ii = 0:power(2,m)-1
+            <span class="keyword">for</span> jj = 0:nu/k
+                h = annotation(<span class="string">'ellipse'</span>,[0.15+stepjj*jj 0.15+stepii*ii 0.01 0.01]);
+                set(h,<span class="string">'facecolor'</span>,<span class="string">'blue'</span>);
+            <span class="keyword">end</span>
+            h = annotation(H,<span class="string">'textbox'</span>,[0.1 0.13+stepii*ii 0.05 0.05]);
+            set(h,<span class="string">'string'</span>,[<span class="string">'S'</span> num2str(mu2m-1-ii)]);
+            set(h,<span class="string">'edgecolor'</span>,<span class="string">'none'</span>,<span class="string">'HorizontalAlignment'</span>,<span class="string">'left'</span>);
+            set(h,<span class="string">'color'</span>,<span class="string">'magenta'</span>);
+        <span class="keyword">end</span>
+        h = annotation(H,<span class="string">'textbox'</span>,[0.02,0.05 0.17 0.05]);
+        set(h,<span class="string">'string'</span>,<span class="string">'Encode : v=='</span>);
+        set(h,<span class="string">'edgecolor'</span>,<span class="string">'none'</span>,<span class="string">'HorizontalAlignment'</span>,<span class="string">'left'</span>);
+        set(h,<span class="string">'color'</span>,<span class="string">'blue'</span>);
+        <span class="keyword">for</span> jj = 1:nu/k
+            <span class="comment">% doc tu ma nguon co k phan tu</span>
+            bitnguon = 0;
+            <span class="keyword">for</span> tt=1:k
+                bitnguon = bitnguon + bitshift(u((jj-1)*k+tt)-<span class="string">'0'</span>,tt-1);
+            <span class="keyword">end</span>
+            <span class="comment">% chen k bit nguon vao ben trai cua s</span>
+
+            snew = bitshift(ss,k) + bitnguon;
+            snew = bitand(snew,power(2,m)-1);
+            x = [0.15+stepjj*(jj-1) 0.15+stepjj*jj];
+            y = [0.15+stepii*(mu2m-1-ss) 0.15+stepii*(mu2m-1-snew)];
+            h = annotation(H,<span class="string">'arrow'</span>,x ,y);
+            set(h,<span class="string">'color'</span>,<span class="string">'red'</span>);
+            h = annotation(H,<span class="string">'textbox'</span>,[sum(x)/2,sum(y)/2 0.05 0.05]);
+            set(h,<span class="string">'string'</span>,u((jj-1)*k+1:jj*k));
+            set(h,<span class="string">'edgecolor'</span>,<span class="string">'none'</span>,<span class="string">'HorizontalAlignment'</span>,<span class="string">'left'</span>);
+            set(h,<span class="string">'color'</span>,[0 0 0.2]);
+            h = annotation(H,<span class="string">'textbox'</span>,[sum(x)/2,0.05 0.05 0.05]);
+            set(h,<span class="string">'string'</span>,dat{ss+1,bitnguon+1});
+            set(h,<span class="string">'edgecolor'</span>,<span class="string">'none'</span>,<span class="string">'HorizontalAlignment'</span>,<span class="string">'left'</span>);
+            set(h,<span class="string">'color'</span>,<span class="string">'red'</span>,<span class="string">'backgroundcolor'</span>,<span class="string">'yellow'</span>);
+            ii = ii +k;
+            ss=snew;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+    <span class="keyword">function</span> about(varargin)
+        h = msgbox({<span class="string">'Author : Vo Hoang Manh Hung'</span> <span class="string">'Class   :   &#272;05VAT1'</span> <span class="string">'PTIT'</span> <span class="string">'5-2008'</span>},<span class="string">'About'</span>);
+        waitfor(h);
+    <span class="keyword">end</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><pre class="codeoutput">WDEavRCxrZ000020006</pre><p class="footer"><br>
+            Published with MATLAB&reg; 7.6<br></p>
+      </div>
+      <!--
+##### SOURCE BEGIN #####
+
+function viterbi(varargin)
+global n m k dat u v r uu numerr
+global inputFile outputFile
+global nguon
+set(0,'recursion',500);
+if (nargin==0)
+    %% REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-khoi tao giao dienREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+    H = findobj(0,'Tag','giaodien');
+    if ~isempty(H)
+        figure(H);
+    else
+        H = figure('units','pixel','pos',[2 2 798 598],'menu','none', ...
+            'tag','giaodien',...
+            'Color',get(0,'DefaultUIControlBackgroundColor'), ...
+            'DefaultUIControlUnit','norm','name','Viterbi Encode-Decode Program');
+        figure(H);
+
+        set(gca,'Visible','off');
+        f=uimenu('Label','File');
+        uimenu(f,'Label','Open','Callback','viterbi(''open'')','Accelerator','O');
+
+        uimenu(f,'Label','Save input file','Callback','viterbi(''SaveIn'')','Accelerator','I');
+        uimenu(f,'Label','Save output file','Callback','viterbi(''SaveOut'')','Accelerator','U');
+        uimenu(f,'Label','Save all','Callback','viterbi(''SaveAll'')','Accelerator','A');
+
+        uimenu(f,'Label','Save input file As...','Callback','viterbi(''SaveInAs'')');
+        uimenu(f,'Label','Save output file As...','Callback','viterbi(''SaveOutAs'')');
+        uimenu(f,'Label','Save all as...','Callback','viterbi(''SaveAs'')');
+
+        uimenu(f,'Label','Quit','Callback','exit','Accelerator','Q');
+
+        g=uimenu('Label','Operate');
+        uimenu(g,'Label','Encode','Callback','viterbi(''Nhap_u'')','Accelerator','E');
+        uimenu(g,'Label','Decode','Callback','viterbi(''Nhap_r'')','Accelerator','D');
+
+        hh=uimenu('Label','Help');
+        uimenu(hh,'Label','About','Callback',@about);
+        %REPLACE_WITH_DASH_DASH-3 duong vien ngoai
+        uicontrol('style','frame','pos',[0.01 0.30 0.98 0.68]);
+        uicontrol('style','frame','pos',[0.01 0.15 0.98 0.14]);
+        uicontrol('style','frame','pos',[0.01 0.01 0.98 0.14]);
+
+        %% REPLACE_WITH_DASH_DASH-khung du lieu
+        u='';       v='';       r='';   uu='';
+        n=0;        m=0;        k=0;
+        dat={''};
+        inputFile = '';
+        outputFile= '';
+
+        uicontrol('style','text','string','  n     =','pos',[0.04 0.93 0.09 0.04],...
+            'tag','fn');
+        uicontrol('pos',[.12 .93 .10 .04],'style','edit','horiz','left', ...
+            'string','0','backgroundcolor','white', ...
+            'tag','nin','CallBack','viterbi(''input'')');
+
+        uicontrol('style','text','string','  m    = ','pos',[0.24 0.93 0.09 0.04],...
+            'tag','fm');
+        uicontrol('pos',[.32 .93 .10 .04],'style','edit','horiz','left', ...
+            'string','0','backgroundcolor','white', ...
+            'tag','min','CallBack','viterbi(''input'')');
+
+        uicontrol('style','text','string','  k    = ','pos',[0.44 0.93 0.09 0.04],...
+            'tag','fk');
+        uicontrol('pos',[.52 .93 .10 .04],'style','edit','horiz','left', ...
+            'string','0','backgroundcolor','white', ...
+            'tag','kin','CallBack','viterbi(''input'')');
+
+        %% REPLACE_WITH_DASH_DASH-khung ket qua
+            uicontrol('style','text','pos',[0.02 0.23 0.03 0.03],'string','u=');
+            uicontrol('pos',[0.02 0.17 0.03 0.03],'string','v=','CallBack','viterbi(''Nhap_u'')','horiz','left');
+            uicontrol('style','text','pos',[0.02 0.09 0.03 0.03],'string','r=');
+            uicontrol('pos',[0.02 0.03 0.03 0.03],'string','u=','CallBack','viterbi(''Nhap_r'')','horiz','left');
+
+            uicontrol('style','edit','pos',[0.06 0.23 0.92 0.05],'string','', ...
+                'CallBack','viterbi(''Nhap_u'')','tag','uin','backgroundcolor','white','horiz','left');
+            uicontrol('style','listbox','pos',[0.06 0.154 0.92 0.07],'string','',...
+                'tag','vout','backgroundcolor',[0.5 0.5 1]);
+            uicontrol('style','edit','pos',[0.06 0.09 0.82 0.05],'string','', ...
+                'CallBack','viterbi(''Nhap_r'')','tag','rin','backgroundcolor','white','horiz','left');
+            uicontrol('style','listbox','pos',[0.06 0.013 0.82 0.07],'string','',...
+                'tag','uout','backgroundcolor',[1 0.5 0.5]);
+            uicontrol('style','text','pos',[0.89 0.03 0.09 0.05],'string','Num of error', ...
+                'horiz','left');
+            uicontrol('style','text','pos',[0.89 0.013 0.09 0.04],'string','0',...
+                'tag','numerr','backgroundcolor',[1 0.5 0.5]);
+            uicontrol('pos',[0.90 0.089 0.07 0.05],'string','Draw','CallBack',@draw,'horiz','left');
+            %tao du lieu ban dau
+            viterbi('update');
+    end
+    %======= xong phan tao giao dien  ===========%
+else
+    %% ======= phan xu li =========================%
+    chose=varargin(1);
+    switch chose{1}
+        case 'update'
+            %% REPLACE_WITH_DASH_DASH- cap nhat lai cac o du lieu
+            h= findobj(0,'tag','giaodien');
+            figure(h);
+            dlvao = findobj(h,'tag','nin');
+            set(dlvao,'string',num2str(n));
+            dlvao = findobj(h,'tag','min');
+            set(dlvao,'string',num2str(m));
+            dlvao = findobj(h,'tag','kin');
+            set(dlvao,'string',num2str(k));
+            dlvao = findobj(h,'tag','uin');
+            set(dlvao,'string',(u));
+            dlvao = findobj(h,'tag','rin');
+            set(dlvao,'string',(r));
+            dlvao = findobj(h,'tag','vout');
+            set(dlvao,'string',(v));
+            dlvao = findobj(h,'tag','uout');
+            set(dlvao,'string',(uu));
+            dlvao = findobj(h,'tag','numerr');
+            set(dlvao,'string',num2str(numerr));
+
+            %% REPLACE_WITH_DASH_DASH- cap nhat bang du lieu S (dat)
+            cnames = cell(1,power(2,k));
+            for i=0:power(2,k)-1
+                idao='';
+                for t=0:k-1
+                    idao(t+1)=bitand(bitshift(i,-t),1)+'0';
+                end
+                cnames{i+1}=idao;
+            end
+
+            rnames = cell(1,power(2,m));
+            for i=0:power(2,m)-1
+                idao='';
+                for t=0:m-1
+                    idao(t+1)=bitand(bitshift(i,-t),1)+'0';
+                end
+                rnames{i+1}=idao;
+            end
+
+            for i=1:power(2,k)
+                ColumnEditable(i)=true;
+            end
+
+            uitable('tag','Sdata','units','normalized','Data',dat(1:power(2,m),1:power(2,k)),'ColumnName',cnames,'RowName',rnames,...
+                'Position',[0.02 0.31 0.96 0.6],'ColumnEditable',ColumnEditable,'CellEditCallback',@updateSdata);
+        case 'open'
+            %% REPLACE_WITH_DASH_DASH- Doc du lieu vao tu file
+            [filename, pathname, filterindex] = uigetfile( ...
+                {  '*.in*','DATA-files (*.in*)'; ...
+                '*.ou*','Result files (*.ou*)'; ...
+                '*.*',  'All Files (*.*)'}, ...
+                'Pick a file', ...
+                'MultiSelect', 'off');
+            switch filterindex
+                case 1
+                    % Doc du lieu tu file input
+                    inputFile = [pathname,filename];
+                    fin = fopen(inputFile,'r');
+                    n = fscanf(fin,'%d',1) ;
+                    m = fscanf(fin,'%d',1) ;
+                    k = fscanf(fin,'%d',1);
+
+                    dat = cell(power(2,m),power(2,k));
+                    for i=1:power(2,m);
+                        for j=1:power(2,k)
+                            dat{i,j} = fscanf(fin,'%s',1);
+                        end
+                    end
+
+                    u = fscanf(fin,'%s',1);
+                    r = fscanf(fin,'%s',1);
+                case 2
+                    % Doc du lieu tu file output
+                    outputFile=[pathname,filename];
+                    fout = fopen(outputFile,'r');
+                    v       = fscanf(fout,'%s',1);
+                    numerr  = fscanf(fout,'%d',1);
+                    uu      = fscanf(fout,'%s',1);
+            end
+            % cap nhat lai du lieu tren cac o
+            viterbi('update');
+            fclose('all')
+        case 'SaveIn'
+            %% luu file input
+            if ~isequal(inputFile,[0 0])
+                if ~isequal(inputFile,'')
+                    fid = fopen(inputFile,'w');
+                    fprintf(fid,'%d %d %d \n',n,m,k);
+                    for i=1:power(2,m)
+                        for j=1:power(2,k)
+                            fprintf(fid,'%s ',dat{i,j});
+                        end
+                        fprintf(fid,'\n');
+                    end
+                    fprintf(fid,'%s\n',u);
+                    fprintf(fid,'%s',r);
+                    fclose(fid);
+                else
+                    viterbi('SaveInAs');
+                end
+            else inputFile='';
+            end
+        case 'SaveOut'
+            %% luu file ket qua
+            if ~isequal(outputFile,[0 0])
+                if ~isequal(outputFile,'')
+                    fid = fopen(outputFile,'w');
+                    fprintf(fid,'%s\n',v);
+                    fprintf(fid,'%d\n',numerr);
+                    fprintf(fid,'%s',uu);
+                    fclose(fid);
+                else
+                    viterbi('SaveOutAs');
+                end
+            else outputFile='';
+            end
+        case 'SaveAll'
+            %% luu tat ca cac file
+            viterbi('SaveIn');
+            viterbi('SaveOut');
+
+        case 'SaveInAs'
+            %% luu file input voi ten khac
+            [filename, pathname] = uiputfile( ...
+                {'*.in*','DATA-files (*.in*)'; ...
+                '*.*',  'All Files (*.*)'}, ...
+                'Save input file as');
+            inputFile = [pathname filename];
+            viterbi('SaveIn');
+        case 'SaveOutAs'
+            %% luu file ket qua voi ten khac
+            [filename, pathname] = uiputfile( ...
+                {'*.ou*','Result files (*.ou*)'; ...
+                '*.*',  'All Files (*.*)'}, ...
+                'Save output file as');
+            outputFile = [pathname filename];
+            viterbi('SaveOut');
+        case 'SaveAs'
+            %% luu tat ca cac file voi ten khac
+            viterbi('SaveInAs');
+            viterbi('SaveOutAs');
+        case 'encode'
+            %% REPLACE_WITH_DASH_DASH- ma hoa nguon tin u
+            v = '';
+            s = 0;          % trang thai cua cac FF
+            nu= numel(u);   % so bit cua nguon tin u
+            i = 1;          % i la bit bat dau cua cum k bit dang xet cua u
+            while i<=nu
+                % doc tu ma nguon co k phan tu
+                bitnguon = 0;
+                for t=0:k-1
+                    bitnguon = bitnguon + bitshift(u(i+t)-'0',t);
+                end
+                v = [v dat{s+1,bitnguon+1}];    % +1 la do toa do duoc danh so tu 1
+                % chen k bit nguon vao ben trai cua s
+                s = bitshift(s,k) + bitnguon;
+                s = bitand(s,power(2,m)-1);
+                i = i +k;
+            end
+            viterbi('update');
+        case 'decode'
+            %% REPLACE_WITH_DASH_DASH- giai ma nguon tin r
+            nr = numel(r);                      % so bit cua nguon tin can giai ma r
+            hh = 1;                             % cot hien hanh cua ma tran loi()
+            mu2m = power(2,m);
+            loi = inf(mu2m,2);                  % loi(:,hh) so loi den thoi diem dang xet
+            loi(1,1) = 0;
+            truoc = zeros(mu2m,nr/n);           % trang thai truoc khi them vao k bit nguon cua cac FF
+            l  = 0;                             % cot dang xet cua ma tran truoc()
+            ir = 1;                             % vi tri bat dau cua cum n bit dang xet
+            % tao bang loi()
+            while ir<=nr
+                hh = 3-hh;                      % doi cot hien hanh
+                loi(:,hh) = inf(mu2m,1);
+                l = l+1;
+                mu2k = power(2,k);
+                for s = 0:mu2m-1
+                    % doi voi tung trang thai cua thanh ghi
+                    bitnguon = bitand(s,mu2k-1);
+                    for bitdau = 0:mu2k-1
+                        % bitdau : cac bit mat di cua thanh ghi sau khi
+                        % chen bit nguon vao
+                        truocs = bitshift(bitdau,m-k)+bitshift(s,-k);
+                        % truocs : trang thai truoc cua s
+                        tam = dat{truocs+1,bitnguon+1};
+                        % +1 la do toa do trong ma tran dat() duoc danh so
+                        % tu(1,1)
+                        soloi = 0;
+                        for t = 1:n
+                            if tam(t)~=r(ir+t-1)
+                                soloi = soloi+1;
+                            end
+                        end
+                        if loi(s+1,hh) > loi(truocs+1,3-hh)+soloi
+                            loi(s+1,hh) = loi(truocs+1,3-hh)+soloi;
+                            truoc(s+1,l) = truocs+1;
+                        end
+                    end
+                end
+                ir = ir+n;
+            end
+            %ket thuc qua trinh tao bang loi()
+
+            %xac dinh so loi it nhat
+            numerr = loi(1,hh);
+            sht  = 1;
+            for i = 2:mu2m
+                if numerr > loi(i,hh)
+                    numerr = loi(i,hh);
+                    sht = i;
+                end
+            end
+
+            %tim duong di de dat duoc so loi it nhat
+            set(0,'RecursionLimit',max(2000,l+2))
+            luu=l;
+            nguon = zeros(luu);
+            while (l>=1)
+                %tach ra tung cum 1000 phan tu de quy
+                find(l,sht);
+                l=l-1000;
+            end
+            %tu ma nguon la uu
+            uu = '';
+            for i=1:luu
+                for t=0:k-1
+                    uu = [uu bitand(bitshift(nguon(i),-t),1)+'0'];
+                end
+            end
+
+        case 'input'
+            %% REPLACE_WITH_DASH_DASH- Lay du lieu vao
+            h= findobj(0,'tag','giaodien');
+
+            %% REPLACE_WITH_DASH_DASH- Nhap n
+            dlvao = findobj(h,'tag','nin');
+            tam = get(dlvao,'string');
+            if ~isequal(tam,'')
+                tam = double(int16(eval(tam)));
+                if (tam>=0)
+                    if (n~=tam)
+                        n = tam;
+                        r = '';
+                        %n thay doi thi r khong con thoa mod(nr,n)==0
+                        %REPLACE_WITH_DASH_DASH-tao lai bang du lieu dat bang 00..0
+                        dat = cell(power(2,m),power(2,k));
+                        for i=1:n
+                            dat{1,1}=[dat{1,1} '0'];
+                        end
+                        for i=1:power(2,m)
+                            for j=1:power(2,k)
+                                dat{i,j}=dat{1,1};
+                            end
+                        end
+                    end
+                else
+                    x = errordlg('Wrong input data','Error');
+                    waitfor(x)
+                end
+            else n=0;
+            end
+            %% REPLACE_WITH_DASH_DASH- Nhap m
+            dlvao = findobj(h,'tag','min');
+            tam = get(dlvao,'string');
+            if ~isequal(tam,'')
+                tam = double(int16(eval(tam)));
+                if (tam>=0) && (tam+k<=15)
+                    dl = '';
+                    for i=1:n
+                        dl=[dl '0'];    %dl gom n bit 0
+                    end
+                    if (m<tam)
+                        % truong hop nhap m lon hon m cu~
+                        % bang du lieu dat duoc mo rong them
+                        dat(power(2,m)+1:power(2,tam),:) = cell(power(2,tam)-power(2,m),power(2,k));
+                        for i=power(2,m)+1:power(2,tam)
+                            for j=1:power(2,k)
+                                dat{i,j}=dl;
+                            end
+                        end
+                    end
+                    if (m>tam)
+                        % truong hop nhap m nho hon m cu~
+                        % bang  du lieu dat duoc thu hep lai
+                        dat = dat(1:power(2,tam),:);
+                    end
+                    if (m~=tam)
+                        m = tam;
+                    end
+                else
+                    if (tam+k>15)
+                        x = errordlg('Input data is too large','Error');
+                        waitfor(x)
+                    else
+                        errordlg('Wrong input data','Error');
+                    end
+                end
+            else m=0;
+            end
+
+            %% REPLACE_WITH_DASH_DASH- Nhap k
+            dlvao = findobj(h,'tag','kin');
+            tam = get(dlvao,'string');
+            if ~isequal(tam,'')
+                tam = double(int16(eval(tam)));
+                if (tam>=0) && (m+tam<=15)
+                    dl = '';
+                    for i=1:n
+                        dl=[dl '0'];    %dl gom n bit 0
+                    end
+                    if (k<tam)
+                        % truong hop nhap k lon hon k cu~
+                        % bang du lieu dat duoc mo rong them
+                        dat(:,power(2,k)+1:power(2,tam)) = cell(power(2,m),power(2,tam)-power(2,k));
+                        for i=1:power(2,m)
+                            for j=power(2,k)+1:power(2,tam)
+                                dat{i,j}=dl;
+                            end
+                        end
+                    end
+                    if (k>tam)
+                        % truong hop nhap k nho hon k cu~
+                        % bang  du lieu dat duoc thu hep lai
+                        dat = dat(:,1:power(2,tam));
+                    end
+                    if (k~=tam)
+                        k = tam;
+                        r = '';
+                        %k thay doi thi u khong con thoa mod(nu,k)==0
+                    end
+                else
+                    if (m+tam>15)
+                        x = errordlg('Input data is too large','Error');
+                        waitfor(x)
+                    else
+                        x = errordlg('Wrong input data','Error');
+                        waitfor(x)
+                    end
+                end
+            else k=0;
+            end
+            % REPLACE_WITH_DASH_DASH- Cap nhat lai cac o du lieu
+            viterbi('update');
+        case 'Nhap_u'
+            %% Nhap tu ma nguon u
+            dulieu = findobj(0,'tag','uin');
+            tam = get(dulieu,'string');
+            err = false;
+            if ~(mod(numel(tam),k)==0)
+                x = errordlg('Number of bits of u (nu) must be satisfied : mod(nu,k)==0','Error');
+                waitfor(x)
+                err = true;
+            else
+                for i=1:numel(tam)
+                    if (tam(i)~='0')&&(tam(i)~='1')
+                        x = errordlg('Input data must be binary','Error');
+                        waitfor(x)
+                        err = true;
+                        break;
+                    end
+                end
+            end
+            if ~err
+                u = tam;
+            end
+            viterbi('update');
+            viterbi('encode');
+
+        case 'Nhap_r'
+            dulieu = findobj(0,'tag','rin');
+            tam = get(dulieu,'string');
+            err = false;
+            if ~(mod(numel(tam),n)==0)
+                x = errordlg('Number of bits of r (nr) must be satisfied : mod(nr,n)==0','Error');
+                waitfor(x)
+                err = true;
+            else
+                for i=1:numel(tam)
+                    if (tam(i)~='0')&&(tam(i)~='1')
+                        x = errordlg('Input data must be binary','Error');
+                        waitfor(x)
+                        err = true;
+                        break;
+                    end
+                end
+            end
+            if ~err
+                r = tam;
+            end
+            viterbi('update');
+            viterbi('decode');
+            %% Nhap tu ma dich r
+
+    end
+
+end
+%% REPLACE_WITH_DASH_DASH-Nhap S (dat)
+    function updateSdata(o,e)
+        dat = get(o,'data');
+        tam = dat{e.Indices(1),e.Indices(2)};
+        if (numel(tam)==n)
+            for index=1:n
+                if (tam(index)~='0')&&(tam(index)~='1')
+                    x = errordlg('Input data must be binary','Error');
+                    waitfor(x)
+                    dat{e.Indices(1),e.Indices(2)} = e.PreviousData;
+                    set(o,'data',dat);
+                    return
+                end
+            end
+        else
+            x = errordlg('Input data length must be n','Error');
+            waitfor(x)
+            dat{e.Indices(1),e.Indices(2)} = e.PreviousData;
+            set(o,'data',dat);
+        end
+
+    end
+
+%% REPLACE_WITH_DASH_DASH- Tim duong di de dat duoc so loi it nhat
+    function find(x,sht)
+        if (x>1)&&(x>l-999)
+            find(x-1,truoc(sht,x));
+        end
+        nguon(x) = bitand(sht-1,mu2k-1);
+    end
+%% REPLACE_WITH_DASH_DASH- Ve do hinh trang thai
+    function draw(varargin)
+        H = findobj(0,'Tag','luocdo');
+        if ~isempty(H)
+            delete(H);
+        end
+        H = figure('units','pixel','pos',[2 2 798 598],'menu','none', ...
+            'tag','luocdo',...
+            'Color',[1 1 0.8], ...
+            'DefaultUIControlUnit','norm','name','Encode process');
+        figure(H);
+        axis off
+        mu2m=power(2,m);
+        ss = 0;          % trang thai cua cac FF
+        nu= numel(u);   % so bit cua nguon tin u
+        stepii = 0.8/(power(2,m)-1);
+        stepjj = 0.8/nu*k;
+        for ii = 0:power(2,m)-1
+            for jj = 0:nu/k
+                h = annotation('ellipse',[0.15+stepjj*jj 0.15+stepii*ii 0.01 0.01]);
+                set(h,'facecolor','blue');
+            end
+            h = annotation(H,'textbox',[0.1 0.13+stepii*ii 0.05 0.05]);
+            set(h,'string',['S' num2str(mu2m-1-ii)]);
+            set(h,'edgecolor','none','HorizontalAlignment','left');
+            set(h,'color','magenta');
+        end
+        h = annotation(H,'textbox',[0.02,0.05 0.17 0.05]);
+        set(h,'string','Encode : v==');
+        set(h,'edgecolor','none','HorizontalAlignment','left');
+        set(h,'color','blue');
+        for jj = 1:nu/k
+            % doc tu ma nguon co k phan tu
+            bitnguon = 0;
+            for tt=1:k
+                bitnguon = bitnguon + bitshift(u((jj-1)*k+tt)-'0',tt-1);
+            end
+            % chen k bit nguon vao ben trai cua s
+
+            snew = bitshift(ss,k) + bitnguon;
+            snew = bitand(snew,power(2,m)-1);
+            x = [0.15+stepjj*(jj-1) 0.15+stepjj*jj];
+            y = [0.15+stepii*(mu2m-1-ss) 0.15+stepii*(mu2m-1-snew)];
+            h = annotation(H,'arrow',x ,y);
+            set(h,'color','red');
+            h = annotation(H,'textbox',[sum(x)/2,sum(y)/2 0.05 0.05]);
+            set(h,'string',u((jj-1)*k+1:jj*k));
+            set(h,'edgecolor','none','HorizontalAlignment','left');
+            set(h,'color',[0 0 0.2]);
+            h = annotation(H,'textbox',[sum(x)/2,0.05 0.05 0.05]);
+            set(h,'string',dat{ss+1,bitnguon+1});
+            set(h,'edgecolor','none','HorizontalAlignment','left');
+            set(h,'color','red','backgroundcolor','yellow');
+            ii = ii +k;
+            ss=snew;
+        end
+    end
+    function about(varargin)
+        h = msgbox({'Author : Vo Hoang Manh Hung' 'Class   :   Đ05VAT1' 'PTIT' '5-2008'},'About');
+        waitfor(h);
+    end
+end
+
+##### SOURCE END #####
+-->
+   </body>
+</html>
